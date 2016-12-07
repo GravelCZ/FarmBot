@@ -4,13 +4,17 @@ import java.net.Proxy;
 import java.util.logging.Logger;
 
 import org.spacehq.mc.auth.data.GameProfile;
+import org.spacehq.mc.auth.exception.request.RequestException;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
 import org.spacehq.packetlib.Client;
 import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.tcp.TcpSessionFactory;
 
 import cz.GravelCZLP.FarmBot.Core.Exceptions.UnknownVersionException;
+import cz.GravelCZLP.FarmBot.Core.Factory.ProtocolUniversalFactory;
+import cz.GravelCZLP.FarmBot.Core.Listeners.SessionListener1_11;
 import cz.GravelCZLP.FarmBot.Versions.IUniversalProtocol;
+import cz.GravelCZLP.FarmBot.Versions.Version;
 
 public class Bot {
 
@@ -50,20 +54,16 @@ public class Bot {
 		
 		switch (protocol.getVersion()) {
 		case VERSION_1_10:
-			
-			break;
+			throw new IllegalArgumentException("1.10 is not implemented yet");
 		case VERSION_1_11:
-			
+			session.addListener(new SessionListener1_11(this));
 			break;
 		case VERSION_1_7:
-			
-			break;
+			throw new IllegalArgumentException("1.7 is not implemented yet");
 		case VERSION_1_8:
-			
-			break;
+			throw new IllegalArgumentException("1.8 is not implemented yet");
 		case VERSION_1_9:
-			
-			break;
+			throw new IllegalArgumentException("1.9 is not implemented yet");
 		default:
 			throw new UnknownVersionException("Version:" + protocol.getVersion().name() + " is not a valid version");
 		}
@@ -129,5 +129,15 @@ public class Bot {
     
     public boolean isAutoRegister() {
     	return isAutoRegister;
+    }
+    
+    public IUniversalProtocol auth(String name, String pass, Version version) throws RequestException {
+    	IUniversalProtocol protocol = null;
+    	if (pass.isEmpty()) {
+    		protocol = ProtocolUniversalFactory.auth(version, name);
+    	} else {
+    		protocol = ProtocolUniversalFactory.auth(version, name, pass);
+    	}
+    	return protocol;
     }
 }
