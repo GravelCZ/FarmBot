@@ -9,7 +9,8 @@ import org.spacehq.mc.protocol.packet.ingame.client.ClientResourcePackStatusPack
 import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerResourcePackSendPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerRespawnPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.world.ServerSpawnPositionPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerHealthPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket;
 import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.session.ConnectedEvent;
 import org.spacehq.packetlib.event.session.DisconnectedEvent;
@@ -62,12 +63,22 @@ public class DefaultListener implements SessionListener {
 			ClientResourcePackStatusPacket packet2 = new ClientResourcePackStatusPacket(ResourcePackStatus.SUCCESSFULLY_LOADED);
 			s.send(packet1);
 			s.send(packet2);
-		} else if (p instanceof ServerSpawnPositionPacket) {
-			ServerSpawnPositionPacket packet = (ServerSpawnPositionPacket) p;
-			double x = packet.getPosition().getX();
-			double y = packet.getPosition().getY();
-			double z = packet.getPosition().getZ();
-			bot.setCurrentLoc(new EntityLocation(x, y, z));
+		} else if (p instanceof ServerPlayerPositionRotationPacket) {
+			ServerPlayerPositionRotationPacket packet = (ServerPlayerPositionRotationPacket) p;
+			double x = packet.getX();
+			double y = packet.getY();
+			double z = packet.getZ();
+			float yaw = packet.getYaw();
+			float pitch = packet.getPitch();
+			bot.setCurrentLoc(new EntityLocation(x, y, z, yaw, pitch));
+		} else if (p instanceof ServerPlayerHealthPacket) {
+			ServerPlayerHealthPacket packet = (ServerPlayerHealthPacket) p;
+			float health = packet.getHealth();
+			float food = packet.getFood();
+			float saturation = packet.getSaturation();
+			bot.setHealth(health);
+			bot.setFood(food);
+			bot.setSaturation(saturation);
 		}
 	}
 
