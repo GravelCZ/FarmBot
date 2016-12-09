@@ -5,7 +5,17 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.spacehq.mc.protocol.MinecraftProtocol;
+import org.spacehq.mc.protocol.data.game.chunk.Column;
+import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
+import org.spacehq.mc.protocol.data.game.entity.player.Hand;
+import org.spacehq.mc.protocol.data.game.world.block.BlockChangeRecord;
+import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
+import org.spacehq.mc.protocol.data.game.world.block.BlockState;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPlaceBlockPacket;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
 import org.spacehq.packetlib.Client;
 import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.session.SessionListener;
@@ -16,6 +26,7 @@ import cz.GravelCZLP.MinecraftBot.Entites.Exporb;
 import cz.GravelCZLP.MinecraftBot.Entites.Mob;
 import cz.GravelCZLP.MinecraftBot.Entites.Painting;
 import cz.GravelCZLP.MinecraftBot.Entites.Player;
+import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
 import cz.GravelCZLP.MinecraftBot.Managers.BotManager.BotType;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 
@@ -33,12 +44,32 @@ public abstract class Bot {
 	private String password;
 	private Logger logger;
 	
+    private boolean invincible;
+    private boolean canFly;
+    private boolean flying;
+    private boolean creative;
+    private float flySpeed;
+    private float walkSpeed;
+	
+	public int currentWindowId;
+	public Inventory currentOpenedInventory;
+	
+	public int currentSlotInHand;
+	
 	public List<Player> nearbyPlayers = new ArrayList<Player>();
 	public List<cz.GravelCZLP.MinecraftBot.Entites.Object> nearbyObjects = new ArrayList<cz.GravelCZLP.MinecraftBot.Entites.Object>();
 	public List<Painting> nearbyPaintings = new ArrayList<Painting>();
 	public List<Mob> nearbyMobs = new ArrayList<Mob>();
 	public List<Exporb> nerbyXPs = new ArrayList<Exporb>();
 	public List<Entity> allEntities = new ArrayList<Entity>();
+	
+	public List<Column> chunks = new ArrayList<Column>();
+	
+	private Inventory inventory;
+	
+	private float experience;
+	private int level;
+	private int totalExperience;
 	
 	public Bot(String host, int port, MinecraftProtocol p) {
 		Client c = new Client(host, port, p, new TcpSessionFactory());
@@ -47,6 +78,29 @@ public abstract class Bot {
 		addListener(new DefaultListener(this));
 		addListener(new EntityPacketsListener(this));
 		logger = Logger.getLogger(name);
+		startHealthLoop();
+	}
+	
+	long lastCheck;
+	
+	public void startHealthLoop() {
+		while ((System.currentTimeMillis() + 500) > lastCheck) {
+			if (health <= 4) {
+				ServerChatPacket home = new ServerChatPacket("/home");
+				session.send(home);
+				ClientPlayerPositionRotationPacket down = new ClientPlayerPositionRotationPacket(true, currentLoc.getX(), currentLoc.getY(), currentLoc.getZ(), -90, 0);
+				session.send(down);
+				for (int i = 0; i < inventory.getHotbar().length; i++) {
+					ItemStack item = inventory.getHotbar()[i];
+					if (item.getId() == 326) {
+						ClientPlayerChangeHeldItemPacket held = new ClientPlayerChangeHeldItemPacket(i);
+						session.send(held);;
+						break;
+					}
+				}
+				ClientPlayerPlaceBlockPacket water = new ClientPlayerPlaceBlockPacket(null, BlockFace.UP, Hand.MAIN_HAND, cursorX, cursorY, cursorZ);
+			}
+		}
 	}
 	
 	public void addListener(SessionListener l) {
@@ -59,6 +113,23 @@ public abstract class Bot {
 	
 	public void disconnect() {
 		session.disconnect("Disconnected!");
+	}
+	
+	public void updateBlock(BlockChangeRecord rec) {
+		int chunkX = rec.getPosition().getX() / 16;
+		int chunkY = rec.getPosition().getY() / 16;
+		int chunkZ = rec.getPosition().getZ() / 16;
+		
+		int blockX = rec.getPosition().getX() % 16;
+		int blockY = rec.getPosition().getY() % 16;
+		int blockZ = rec.getPosition().getZ() % 16;
+	}
+	
+	public BlockState getBlockState(int x, int y, int z) {
+		int blockX = x % 16;
+		int blockY = y % 16;
+		int blockZ = z % 16;
+		return null;
 	}
 	
 	public abstract BotType getType();
@@ -148,5 +219,85 @@ public abstract class Bot {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Inventory getInventory() {
+		return inventory;
+	}
+
+	public boolean isInvincible() {
+		return invincible;
+	}
+
+	public void setInvincible(boolean invincible) {
+		this.invincible = invincible;
+	}
+
+	public boolean isCanFly() {
+		return canFly;
+	}
+
+	public void setCanFly(boolean canFly) {
+		this.canFly = canFly;
+	}
+
+	public boolean isFlying() {
+		return flying;
+	}
+
+	public void setFlying(boolean flying) {
+		this.flying = flying;
+	}
+
+	public boolean isCreative() {
+		return creative;
+	}
+
+	public void setCreative(boolean creative) {
+		this.creative = creative;
+	}
+
+	public float getFlySpeed() {
+		return flySpeed;
+	}
+
+	public void setFlySpeed(float flySpeed) {
+		this.flySpeed = flySpeed;
+	}
+
+	public float getWalkSpeed() {
+		return walkSpeed;
+	}
+
+	public void setWalkSpeed(float walkSpeed) {
+		this.walkSpeed = walkSpeed;
+	}
+
+	public void setSession(Session session) {
+		this.session = session;
+	}
+
+	public float getExperience() {
+		return experience;
+	}
+
+	public void setExperience(float experience) {
+		this.experience = experience;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	public int getTotalExperience() {
+		return totalExperience;
+	}
+
+	public void setTotalExperience(int totalExperience) {
+		this.totalExperience = totalExperience;
 	}
 }

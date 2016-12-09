@@ -1,9 +1,14 @@
 package cz.GravelCZLP.MinecraftBot.Entites;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
+import org.spacehq.mc.protocol.data.game.entity.Effect;
+import org.spacehq.mc.protocol.data.game.entity.EntityStatus;
 import org.spacehq.mc.protocol.data.game.entity.EquipmentSlot;
+import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
 import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 
@@ -17,9 +22,16 @@ public class Player extends Entity {
     private float pitch;
     private EntityMetadata metadata[];
     
+    private boolean onGround;
+    
+    private List<Attribute> attributes = new ArrayList<Attribute>();
+    public List<Effect> effects = new ArrayList<Effect>();
+    
     private float health;
     private HashMap<EquipmentSlot, ItemStack> armor = new HashMap<>();
     private ItemStack currentItemInhand;
+    
+    private EntityStatus status;;
     
 	public Player(int entityId, UUID uuid, double x, double y, double z, float yaw, float pitch,
 			EntityMetadata[] metadata) {
@@ -89,5 +101,23 @@ public class Player extends Entity {
 	}
 	public HashMap<EquipmentSlot, ItemStack> getArmor() {
 		return armor;
+	}
+	public void setOnGround(boolean onGround) {
+		this.onGround = onGround;
+	}
+	public boolean isOnGround() {
+		return onGround;
+	}
+	public List<Attribute> getAttributes() {
+		return attributes;
+	}
+	public void setAttributes(List<Attribute> attributes) {
+		this.attributes = attributes;
+	}
+	public EntityStatus getStatus() {
+		return status;
+	}
+	public void setStatus(EntityStatus status) {
+		this.status = status;
 	}
 }

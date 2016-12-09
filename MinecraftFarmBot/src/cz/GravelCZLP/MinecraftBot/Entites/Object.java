@@ -1,7 +1,12 @@
 package cz.GravelCZLP.MinecraftBot.Entites;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.spacehq.mc.protocol.data.game.entity.Effect;
+import org.spacehq.mc.protocol.data.game.entity.EntityStatus;
+import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
 import org.spacehq.mc.protocol.data.game.entity.type.object.ObjectData;
 import org.spacehq.mc.protocol.data.game.entity.type.object.ObjectType;
 
@@ -18,6 +23,12 @@ public class Object extends Entity{
 	private double motX;
 	private double motY;
 	private double motZ;
+	private boolean onGround;
+	public List<Attribute> attributes = new ArrayList<Attribute>();
+	public List<Effect> effects = new ArrayList<Effect>();
+	
+	private EntityStatus status;
+	
 	public Object(int entityId, UUID uuid, ObjectType type, double x, double y, double z, float pitch, float yaw,
 			ObjectData data, double motX, double motY, double motZ) {
 		super(entityId);
@@ -100,4 +111,17 @@ public class Object extends Entity{
 	public void setMotZ(double motZ) {
 		this.motZ = motZ;
 	}
+	public void setOnGround(boolean onGround) {
+		this.onGround = onGround;
+	}
+	public boolean isOnGround() {
+		return onGround;
+	}
+	public EntityStatus getStatus() {
+		return status;
+	}
+	public void setStatus(EntityStatus status) {
+		this.status = status;
+	}
+	
 }
