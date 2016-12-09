@@ -1,26 +1,19 @@
 package cz.GravelCZLP.MinecraftBot.Entites;
 
-public class Exporb {
+public class Exporb extends Entity {
 
-	private int entityId;
 	private double x;
 	private double y;
 	private double z;
 	private int xp;
 	
 	public Exporb(int entityId, double x, double y, double z, int xp) {
-		super();
+		super(entityId);
 		this.entityId = entityId;
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.xp = xp;
-	}
-	public int getEntityId() {
-		return entityId;
-	}
-	public void setEntityId(int entityId) {
-		this.entityId = entityId;
 	}
 	public double getX() {
 		return x;
@@ -46,6 +39,4 @@ public class Exporb {
 	public void setXp(int xp) {
 		this.xp = xp;
 	}
-	
-	
 }

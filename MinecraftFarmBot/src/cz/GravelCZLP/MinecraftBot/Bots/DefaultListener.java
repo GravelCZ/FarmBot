@@ -1,11 +1,17 @@
 package cz.GravelCZLP.MinecraftBot.Bots;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.spacehq.mc.protocol.data.game.ResourcePackStatus;
 import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
+import org.spacehq.mc.protocol.data.game.entity.player.Hand;
+import org.spacehq.mc.protocol.data.game.setting.ChatVisibility;
+import org.spacehq.mc.protocol.data.game.setting.SkinPart;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientResourcePackStatusPacket;
+import org.spacehq.mc.protocol.packet.ingame.client.ClientSettingsPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerResourcePackSendPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerRespawnPacket;
@@ -35,6 +41,15 @@ public class DefaultListener implements SessionListener {
 		Session s = e.getSession();
 		ClientChatPacket p = bot.isRegistered() ? new ClientChatPacket("/login " + bot.getPassword()) : new ClientChatPacket("/register passworld99 passworld99");
 		s.send(p);
+		
+		List<SkinPart> list = new ArrayList<SkinPart>();
+		
+		for (SkinPart sp : SkinPart.values()) {
+			list.add(sp);
+		}
+		
+		ClientSettingsPacket packet = new ClientSettingsPacket("null", 8, ChatVisibility.FULL, true, (SkinPart[])list.toArray(), Hand.MAIN_HAND);
+		s.send(packet);
 	}
 
 	@Override

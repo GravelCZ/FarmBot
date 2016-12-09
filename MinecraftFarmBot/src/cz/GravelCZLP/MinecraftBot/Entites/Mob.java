@@ -1,13 +1,15 @@
 package cz.GravelCZLP.MinecraftBot.Entites;
 
+import java.util.HashMap;
 import java.util.UUID;
 
+import org.spacehq.mc.protocol.data.game.entity.EquipmentSlot;
 import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
+import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 import org.spacehq.mc.protocol.data.game.entity.type.MobType;
 
-public class Mob {
+public class Mob extends Entity {
 
-	private int entityId;
 	private UUID uuid;
 	private MobType type;
 	private double x;
@@ -20,9 +22,14 @@ public class Mob {
 	private double motY;
 	private double motZ;
 	private EntityMetadata metadata[];
+	
+	private HashMap<EquipmentSlot, ItemStack> armor = new HashMap<>();
+	private float health;
+	private ItemStack currentItemInHand;
+	
 	public Mob(int entityId, UUID uuid, MobType type, double x, double y, double z, float pitch, float yaw,
 			float headYaw, double motX, double motY, double motZ, EntityMetadata[] metadata) {
-		super();
+		super(entityId);
 		this.entityId = entityId;
 		this.uuid = uuid;
 		this.type = type;
@@ -36,12 +43,6 @@ public class Mob {
 		this.motY = motY;
 		this.motZ = motZ;
 		this.metadata = metadata;
-	}
-	public int getEntityId() {
-		return entityId;
-	}
-	public void setEntityId(int entityId) {
-		this.entityId = entityId;
 	}
 	public UUID getUuid() {
 		return uuid;
@@ -114,6 +115,21 @@ public class Mob {
 	}
 	public void setMetadata(EntityMetadata[] metadata) {
 		this.metadata = metadata;
+	}
+	public float getHealth() {
+		return health;
+	}
+	public void setHealth(float health) {
+		this.health = health;
+	}
+	public ItemStack getCurrentItemInHand() {
+		return currentItemInHand;
+	}
+	public void setCurrentItemInHand(ItemStack currentItemInHand) {
+		this.currentItemInHand = currentItemInHand;
+	}
+	public HashMap<EquipmentSlot, ItemStack> getArmor() {
+		return armor;
 	}
 
 }

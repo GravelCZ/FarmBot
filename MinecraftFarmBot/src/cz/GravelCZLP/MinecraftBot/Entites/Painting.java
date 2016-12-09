@@ -6,29 +6,20 @@ import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.type.PaintingType;
 import org.spacehq.mc.protocol.data.game.entity.type.object.HangingDirection;
 
-public class Painting {
+public class Painting extends Entity{
 	
-	private int entityId;
 	private UUID uuid;
 	private PaintingType type;
 	private HangingDirection direction;
 	private Position position;
 	
 	public Painting(int entityId, UUID uuid, PaintingType type, HangingDirection direction, Position position) {
-		super();
+		super(entityId);
 		this.entityId = entityId;
 		this.uuid = uuid;
 		this.type = type;
 		this.direction = direction;
 		this.position = position;
-	}
-
-	public int getEntityId() {
-		return entityId;
-	}
-
-	public void setEntityId(int entityId) {
-		this.entityId = entityId;
 	}
 
 	public UUID getUuid() {

@@ -11,6 +11,7 @@ import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.session.SessionListener;
 import org.spacehq.packetlib.tcp.TcpSessionFactory;
 
+import cz.GravelCZLP.MinecraftBot.Entites.Entity;
 import cz.GravelCZLP.MinecraftBot.Entites.Exporb;
 import cz.GravelCZLP.MinecraftBot.Entites.Mob;
 import cz.GravelCZLP.MinecraftBot.Entites.Painting;
@@ -37,6 +38,7 @@ public abstract class Bot {
 	public List<Painting> nearbyPaintings = new ArrayList<Painting>();
 	public List<Mob> nearbyMobs = new ArrayList<Mob>();
 	public List<Exporb> nerbyXPs = new ArrayList<Exporb>();
+	public List<Entity> allEntities = new ArrayList<Entity>();
 	
 	public Bot(String host, int port, MinecraftProtocol p) {
 		Client c = new Client(host, port, p, new TcpSessionFactory());

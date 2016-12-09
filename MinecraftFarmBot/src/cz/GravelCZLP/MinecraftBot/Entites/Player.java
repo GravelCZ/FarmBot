@@ -1,13 +1,14 @@
 package cz.GravelCZLP.MinecraftBot.Entites;
 
+import java.util.HashMap;
 import java.util.UUID;
 
+import org.spacehq.mc.protocol.data.game.entity.EquipmentSlot;
 import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
-import org.spacehq.mc.protocol.data.game.entity.type.GlobalEntityType;
+import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 
-public class Player {
+public class Player extends Entity {
 
-    private int entityId;
     private UUID uuid;
     private double x;
     private double y;
@@ -16,9 +17,13 @@ public class Player {
     private float pitch;
     private EntityMetadata metadata[];
     
+    private float health;
+    private HashMap<EquipmentSlot, ItemStack> armor = new HashMap<>();
+    private ItemStack currentItemInhand;
+    
 	public Player(int entityId, UUID uuid, double x, double y, double z, float yaw, float pitch,
 			EntityMetadata[] metadata) {
-		super();
+		super(entityId);
 		this.entityId = entityId;
 		this.uuid = uuid;
 		this.x = x;
@@ -27,12 +32,6 @@ public class Player {
 		this.yaw = yaw;
 		this.pitch = pitch;
 		this.metadata = metadata;
-	}
-	public int getEntityId() {
-		return entityId;
-	}
-	public void setEntityId(int entityId) {
-		this.entityId = entityId;
 	}
 	public UUID getUuid() {
 		return uuid;
@@ -75,5 +74,20 @@ public class Player {
 	}
 	public void setMetadata(EntityMetadata[] metadata) {
 		this.metadata = metadata;
+	}
+	public float getHealth() {
+		return health;
+	}
+	public void setHealth(float health) {
+		this.health = health;
+	}
+	public ItemStack getCurrentItemInhand() {
+		return currentItemInhand;
+	}
+	public void setCurrentItemInhand(ItemStack currentItemInhand) {
+		this.currentItemInhand = currentItemInhand;
+	}
+	public HashMap<EquipmentSlot, ItemStack> getArmor() {
+		return armor;
 	}
 }

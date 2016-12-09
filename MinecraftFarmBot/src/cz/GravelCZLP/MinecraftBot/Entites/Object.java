@@ -5,9 +5,8 @@ import java.util.UUID;
 import org.spacehq.mc.protocol.data.game.entity.type.object.ObjectData;
 import org.spacehq.mc.protocol.data.game.entity.type.object.ObjectType;
 
-public class Object {
+public class Object extends Entity{
 
-	private int entityId;
 	private UUID uuid;
 	private ObjectType type;
 	private double x;
@@ -21,7 +20,7 @@ public class Object {
 	private double motZ;
 	public Object(int entityId, UUID uuid, ObjectType type, double x, double y, double z, float pitch, float yaw,
 			ObjectData data, double motX, double motY, double motZ) {
-		super();
+		super(entityId);
 		this.entityId = entityId;
 		this.uuid = uuid;
 		this.type = type;
@@ -34,12 +33,6 @@ public class Object {
 		this.motX = motX;
 		this.motY = motY;
 		this.motZ = motZ;
-	}
-	public int getEntityId() {
-		return entityId;
-	}
-	public void setEntityId(int entityId) {
-		this.entityId = entityId;
 	}
 	public UUID getUuid() {
 		return uuid;
