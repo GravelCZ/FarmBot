@@ -7,14 +7,18 @@ import java.util.logging.Logger;
 import org.spacehq.mc.protocol.MinecraftProtocol;
 import org.spacehq.mc.protocol.data.game.chunk.Column;
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
+import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
 import org.spacehq.mc.protocol.data.game.entity.player.Hand;
+import org.spacehq.mc.protocol.data.game.setting.Difficulty;
+import org.spacehq.mc.protocol.data.game.world.WorldType;
 import org.spacehq.mc.protocol.data.game.world.block.BlockChangeRecord;
 import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
 import org.spacehq.mc.protocol.data.game.world.block.BlockState;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPlaceBlockPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerUseItemPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
 import org.spacehq.packetlib.Client;
 import org.spacehq.packetlib.Session;
@@ -43,6 +47,15 @@ public abstract class Bot {
 	private GameMode gamemode;
 	private String password;
 	private Logger logger;
+	
+	private int selfId;
+	
+	private int dimension;
+	private boolean hardcore;
+	private Difficulty difficulty;
+	private boolean reducedDebugInfo;
+	private int maxPlayers;
+	private WorldType worldType;
 	
     private boolean invincible;
     private boolean canFly;
@@ -85,20 +98,45 @@ public abstract class Bot {
 	
 	public void startHealthLoop() {
 		while ((System.currentTimeMillis() + 500) > lastCheck) {
+			if (health <= 0) {
+				setAlive(false);
+				
+			}
 			if (health <= 4) {
 				ServerChatPacket home = new ServerChatPacket("/home");
 				session.send(home);
 				ClientPlayerPositionRotationPacket down = new ClientPlayerPositionRotationPacket(true, currentLoc.getX(), currentLoc.getY(), currentLoc.getZ(), -90, 0);
 				session.send(down);
+				boolean foundBukket = false;
 				for (int i = 0; i < inventory.getHotbar().length; i++) {
 					ItemStack item = inventory.getHotbar()[i];
 					if (item.getId() == 326) {
 						ClientPlayerChangeHeldItemPacket held = new ClientPlayerChangeHeldItemPacket(i);
 						session.send(held);;
+						foundBukket = true;
 						break;
 					}
 				}
-				ClientPlayerPlaceBlockPacket water = new ClientPlayerPlaceBlockPacket(null, BlockFace.UP, Hand.MAIN_HAND, cursorX, cursorY, cursorZ);
+				if (!foundBukket) {
+					session.disconnect("");
+				}
+				ClientPlayerPlaceBlockPacket water = new ClientPlayerPlaceBlockPacket(new Position((int)currentLoc.getX(), (int)currentLoc.getY(), (int)currentLoc.getZ()), BlockFace.UP, Hand.MAIN_HAND, 0.5F, 0.5F, 0.5F);
+				session.send(water);
+				try {
+					Thread.sleep(250L);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				for (int i = 0; i < inventory.getHotbar().length; i++) {
+					ItemStack item = inventory.getHotbar()[i];
+					if (item.getId() == 325) {
+						ClientPlayerChangeHeldItemPacket held = new ClientPlayerChangeHeldItemPacket(i);
+						session.send(held);
+						break;
+					}
+				}
+				ClientPlayerUseItemPacket use = new ClientPlayerUseItemPacket(Hand.MAIN_HAND);
+				session.send(use);
 			}
 		}
 	}
@@ -299,5 +337,61 @@ public abstract class Bot {
 
 	public void setTotalExperience(int totalExperience) {
 		this.totalExperience = totalExperience;
+	}
+
+	public int getSelfId() {
+		return selfId;
+	}
+
+	public void setSelfId(int selfId) {
+		this.selfId = selfId;
+	}
+
+	public int getDimension() {
+		return dimension;
+	}
+
+	public void setDimension(int dimension) {
+		this.dimension = dimension;
+	}
+
+	public boolean isHardcore() {
+		return hardcore;
+	}
+
+	public void setHardcore(boolean hardcore) {
+		this.hardcore = hardcore;
+	}
+
+	public Difficulty getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(Difficulty difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	public boolean isReducedDebugInfo() {
+		return reducedDebugInfo;
+	}
+
+	public void setReducedDebugInfo(boolean reducedDebugInfo) {
+		this.reducedDebugInfo = reducedDebugInfo;
+	}
+
+	public int getMaxPlayers() {
+		return maxPlayers;
+	}
+
+	public void setMaxPlayers(int maxPlayers) {
+		this.maxPlayers = maxPlayers;
+	}
+
+	public WorldType getWorldType() {
+		return worldType;
+	}
+
+	public void setWorldType(WorldType worldType) {
+		this.worldType = worldType;
 	}
 }

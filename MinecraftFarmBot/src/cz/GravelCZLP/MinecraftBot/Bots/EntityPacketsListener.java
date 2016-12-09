@@ -107,8 +107,6 @@ public class EntityPacketsListener implements SessionListener {
 							bot.nearbyPaintings.remove((Painting) en);
 						} else if (en instanceof Exporb) {
 							bot.nerbyXPs.remove((Exporb) en);
-						} else {
-							throw new IllegalArgumentException("Invalid Entity");
 						}
 					}
 				}

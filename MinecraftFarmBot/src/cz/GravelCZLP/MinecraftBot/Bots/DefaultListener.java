@@ -16,6 +16,8 @@ import org.spacehq.mc.protocol.packet.ingame.client.ClientResourcePackStatusPack
 import org.spacehq.mc.protocol.packet.ingame.client.ClientSettingsPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.world.ClientTeleportConfirmPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerDifficultyPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerJoinGamePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerResourcePackSendPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerRespawnPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerHealthPacket;
@@ -107,6 +109,25 @@ public class DefaultListener implements SessionListener {
 			bot.setHealth(health);
 			bot.setFood(food);
 			bot.setSaturation(saturation);
+		} else if (p instanceof ServerJoinGamePacket) {
+			ServerJoinGamePacket packet = (ServerJoinGamePacket) p;
+			bot.setSelfId(packet.getEntityId());
+			bot.setHardcore(packet.getHardcore());
+			bot.setGameMode(packet.getGameMode());
+			bot.setDimension(packet.getDimension());
+			bot.setDifficulty(packet.getDifficulty());
+			bot.setMaxPlayers(packet.getMaxPlayers());
+			bot.setWorldType(packet.getWorldType());
+			bot.setReducedDebugInfo(packet.getReducedDebugInfo());
+		} else if (p instanceof ServerDifficultyPacket) {
+			ServerDifficultyPacket packet = (ServerDifficultyPacket) p;
+			bot.setDifficulty(packet.getDifficulty());
+		} else if (p instanceof ServerRespawnPacket) {
+			ServerRespawnPacket packet = (ServerRespawnPacket) p;
+			bot.setDimension(packet.getDimension());
+			bot.setDifficulty(packet.getDifficulty());
+			bot.setGameMode(packet.getGameMode());
+			bot.setWorldType(packet.getWorldType());
 		}
 		//Chunk packets 
 		if (p instanceof ServerChunkDataPacket) {
