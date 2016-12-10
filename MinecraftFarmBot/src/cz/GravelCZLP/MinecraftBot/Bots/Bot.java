@@ -12,9 +12,7 @@ import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
 import org.spacehq.mc.protocol.data.game.entity.player.Hand;
 import org.spacehq.mc.protocol.data.game.setting.Difficulty;
 import org.spacehq.mc.protocol.data.game.world.WorldType;
-import org.spacehq.mc.protocol.data.game.world.block.BlockChangeRecord;
 import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
-import org.spacehq.mc.protocol.data.game.world.block.BlockState;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPlaceBlockPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
@@ -108,7 +106,7 @@ public abstract class Bot {
 			if (health <= 4) {
 				ServerChatPacket home = new ServerChatPacket("/home");
 				session.send(home);
-				ClientPlayerPositionRotationPacket down = new ClientPlayerPositionRotationPacket(true, currentLoc.getX(), currentLoc.getY(), currentLoc.getZ(), -90, 0);
+				ClientPlayerPositionRotationPacket down = new ClientPlayerPositionRotationPacket(true, currentLoc.getX(), currentLoc.getY(), currentLoc.getZ(), 0, 90);
 				session.send(down);
 				boolean foundBukket = false;
 				for (int i = 0; i < inventory.getHotbar().length; i++) {
@@ -156,7 +154,7 @@ public abstract class Bot {
 		session.disconnect("Disconnected!");
 	}
 	
-	public void updateBlock(BlockChangeRecord rec) {
+	/*public void updateBlock(BlockChangeRecord rec) {
 		int chunkX = rec.getPosition().getX() / 16;
 		int chunkY = rec.getPosition().getY() / 16;
 		int chunkZ = rec.getPosition().getZ() / 16;
@@ -171,7 +169,7 @@ public abstract class Bot {
 		int blockY = y % 16;
 		int blockZ = z % 16;
 		return null;
-	}
+	}*/
 	
 	public abstract BotType getType();
 	
