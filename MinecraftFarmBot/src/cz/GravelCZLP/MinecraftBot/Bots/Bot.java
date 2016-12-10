@@ -33,6 +33,7 @@ import cz.GravelCZLP.MinecraftBot.Entites.Player;
 import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
 import cz.GravelCZLP.MinecraftBot.Managers.BotManager.BotType;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
+import cz.GravelCZLP.MinecraftBot.World.Border;
 
 public abstract class Bot {
 
@@ -83,6 +84,8 @@ public abstract class Bot {
 	private float experience;
 	private int level;
 	private int totalExperience;
+	
+	private Border border;
 	
 	public Bot(String host, int port, MinecraftProtocol p) {
 		Client c = new Client(host, port, p, new TcpSessionFactory());
@@ -393,5 +396,13 @@ public abstract class Bot {
 
 	public void setWorldType(WorldType worldType) {
 		this.worldType = worldType;
+	}
+
+	public Border getBorder() {
+		return border;
+	}
+
+	public void setBorder(Border border) {
+		this.border = border;
 	}
 }

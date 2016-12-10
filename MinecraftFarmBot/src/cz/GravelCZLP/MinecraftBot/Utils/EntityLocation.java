@@ -1,8 +1,5 @@
 package cz.GravelCZLP.MinecraftBot.Utils;
 
-import org.spacehq.mc.protocol.data.game.setting.Difficulty;
-import org.spacehq.mc.protocol.data.game.world.WorldType;
-
 public class EntityLocation {
 
 	private double x;
@@ -13,7 +10,7 @@ public class EntityLocation {
 	private float pitch;
 	
 	public EntityLocation(double x, double y, double z) {
-		this(x,y,z,0,0,dim);
+		this(x,y,z,0,0);
 	}
 	
 	public EntityLocation(double x, double y, double z, float yaw, float pitch) {

@@ -28,6 +28,7 @@ import org.spacehq.mc.protocol.packet.ingame.server.window.ServerWindowItemsPack
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerBlockChangePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerChunkDataPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerMultiBlockChangePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerWorldBorderPacket;
 import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.session.ConnectedEvent;
 import org.spacehq.packetlib.event.session.DisconnectedEvent;
@@ -40,6 +41,7 @@ import org.spacehq.packetlib.packet.Packet;
 import cz.GravelCZLP.MinecraftBot.Inventory.ChestInventory;
 import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
+import cz.GravelCZLP.MinecraftBot.World.Border;
 
 public class DefaultListener implements SessionListener {
 
@@ -142,6 +144,42 @@ public class DefaultListener implements SessionListener {
 				bot.updateBlock(data);
 			}
 		}
+		
+		if (p instanceof ServerWorldBorderPacket) {
+			ServerWorldBorderPacket packet = (ServerWorldBorderPacket) p;
+			switch (packet.getAction()) {
+			case INITIALIZE:
+				Border border = new Border(packet.getRadius(), packet.getOldRadius(), packet.getNewRadius(), packet.getSpeed(), packet.getCenterX(), packet.getCenterY(), packet.getPortalTeleportBoundary(), packet.getWarningTime(), packet.getWarningBlocks());
+				bot.setBorder(border);
+				break;
+			case LERP_SIZE:
+				Border b = bot.getBorder();
+				b.setOldRadius(packet.getOldRadius());
+				b.setNewRadius(packet.getNewRadius());
+				b.setSpeed(packet.getSpeed());
+				break;
+			case SET_CENTER:
+				Border b1 = bot.getBorder();
+				b1.setCenterX(packet.getCenterX());
+				b1.setCenterY(packet.getCenterY());
+				break;
+			case SET_SIZE:
+				Border b2 = bot.getBorder();
+				b2.setRadius(packet.getRadius());
+				break;
+			case SET_WARNING_BLOCKS:
+				Border b3 = bot.getBorder();
+				b3.setWarningBlocks(packet.getWarningBlocks());
+				break;
+			case SET_WARNING_TIME:
+				Border b4 = bot.getBorder();
+				b4.setWarningTime(packet.getWarningTime());
+				break;
+			default:
+				break;
+			}
+		}
+		
 		//Inventory packets
 		if (p instanceof ServerWindowItemsPacket) {
 			ServerWindowItemsPacket packet = (ServerWindowItemsPacket) p;
