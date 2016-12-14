@@ -76,6 +76,11 @@ public class EntityLocation implements Cloneable {
 	
 	@Override
 	public EntityLocation clone() {
-		return new EntityLocation(x,y,z,yaw,pitch);
+		try {
+			return (EntityLocation) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
