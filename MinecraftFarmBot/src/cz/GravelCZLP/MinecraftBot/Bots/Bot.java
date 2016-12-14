@@ -2,17 +2,20 @@ package cz.GravelCZLP.MinecraftBot.Bots;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.spacehq.mc.protocol.MinecraftProtocol;
-import org.spacehq.mc.protocol.data.game.chunk.Column;
+import org.spacehq.mc.protocol.data.game.ClientRequest;
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
 import org.spacehq.mc.protocol.data.game.entity.player.Hand;
 import org.spacehq.mc.protocol.data.game.setting.Difficulty;
+import org.spacehq.mc.protocol.data.game.statistic.Statistic;
 import org.spacehq.mc.protocol.data.game.world.WorldType;
 import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
+import org.spacehq.mc.protocol.packet.ingame.client.ClientRequestPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPlaceBlockPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
@@ -66,7 +69,11 @@ public abstract class Bot {
 	public int currentWindowId;
 	public Inventory currentOpenedInventory;
 	
+	private Map<Statistic, Integer> stats;
+
 	public int currentSlotInHand;
+	
+	public EntityLocation lastDeathLocation;
 	
 	public List<Player> nearbyPlayers = new ArrayList<Player>();
 	public List<cz.GravelCZLP.MinecraftBot.Entites.Object> nearbyObjects = new ArrayList<cz.GravelCZLP.MinecraftBot.Entites.Object>();
@@ -74,8 +81,6 @@ public abstract class Bot {
 	public List<Mob> nearbyMobs = new ArrayList<Mob>();
 	public List<Exporb> nerbyXPs = new ArrayList<Exporb>();
 	public List<Entity> allEntities = new ArrayList<Entity>();
-	
-	public List<Column> chunks = new ArrayList<Column>();
 	
 	private Inventory inventory;
 	
@@ -100,8 +105,11 @@ public abstract class Bot {
 	public void startHealthLoop() {
 		while ((System.currentTimeMillis() + 500) > lastCheck) {
 			if (health <= 0) {
+				lastDeathLocation = currentLoc.clone();
 				setAlive(false);
-				
+				ClientRequestPacket r = new ClientRequestPacket(ClientRequest.RESPAWN);
+				session.send(r);
+				return;
 			}
 			if (health <= 4) {
 				ServerChatPacket home = new ServerChatPacket("/home");
@@ -153,23 +161,6 @@ public abstract class Bot {
 	public void disconnect() {
 		session.disconnect("Disconnected!");
 	}
-	
-	/*public void updateBlock(BlockChangeRecord rec) {
-		int chunkX = rec.getPosition().getX() / 16;
-		int chunkY = rec.getPosition().getY() / 16;
-		int chunkZ = rec.getPosition().getZ() / 16;
-		
-		int blockX = rec.getPosition().getX() % 16;
-		int blockY = rec.getPosition().getY() % 16;
-		int blockZ = rec.getPosition().getZ() % 16;
-	}
-	
-	public BlockState getBlockState(int x, int y, int z) {
-		int blockX = x % 16;
-		int blockY = y % 16;
-		int blockZ = z % 16;
-		return null;
-	}*/
 	
 	public abstract BotType getType();
 	
@@ -402,5 +393,12 @@ public abstract class Bot {
 
 	public void setBorder(Border border) {
 		this.border = border;
+	}
+	public Map<Statistic, Integer> getStats() {
+		return stats;
+	}
+
+	public void setStats(Map<Statistic, Integer> stats) {
+		this.stats = stats;
 	}
 }

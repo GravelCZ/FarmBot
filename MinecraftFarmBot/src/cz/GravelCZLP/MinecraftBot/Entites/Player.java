@@ -12,14 +12,11 @@ import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
 import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 
+import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
+
 public class Player extends Entity {
 
     private UUID uuid;
-    private double x;
-    private double y;
-    private double z;
-    private float yaw;
-    private float pitch;
     private EntityMetadata metadata[];
     
     private boolean onGround;
@@ -33,16 +30,11 @@ public class Player extends Entity {
     
     private EntityStatus status;;
     
-	public Player(int entityId, UUID uuid, double x, double y, double z, float yaw, float pitch,
-			EntityMetadata[] metadata) {
+	public Player(int entityId, UUID uuid, EntityLocation loc, EntityMetadata[] metadata) {
 		super(entityId);
 		this.entityId = entityId;
 		this.uuid = uuid;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.yaw = yaw;
-		this.pitch = pitch;
+		super.location = loc;
 		this.metadata = metadata;
 	}
 	public UUID getUuid() {
@@ -50,36 +42,6 @@ public class Player extends Entity {
 	}
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
-	}
-	public double getX() {
-		return x;
-	}
-	public void setX(double x) {
-		this.x = x;
-	}
-	public double getY() {
-		return y;
-	}
-	public void setY(double y) {
-		this.y = y;
-	}
-	public double getZ() {
-		return z;
-	}
-	public void setZ(double z) {
-		this.z = z;
-	}
-	public float getYaw() {
-		return yaw;
-	}
-	public void setYaw(float yaw) {
-		this.yaw = yaw;
-	}
-	public float getPitch() {
-		return pitch;
-	}
-	public void setPitch(float pitch) {
-		this.pitch = pitch;
 	}
 	public EntityMetadata[] getMetadata() {
 		return metadata;
@@ -119,5 +81,9 @@ public class Player extends Entity {
 	}
 	public void setStatus(EntityStatus status) {
 		this.status = status;
+	}
+	@Override
+	public EntityIdentifier getIdentifier() {
+		return EntityIdentifier.PLAYER;
 	}
 }

@@ -2,32 +2,33 @@ package cz.GravelCZLP.MinecraftBot.Bots;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
+import org.spacehq.mc.protocol.data.game.ClientRequest;
 import org.spacehq.mc.protocol.data.game.ResourcePackStatus;
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
-import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
 import org.spacehq.mc.protocol.data.game.entity.player.Hand;
 import org.spacehq.mc.protocol.data.game.setting.ChatVisibility;
 import org.spacehq.mc.protocol.data.game.setting.SkinPart;
-import org.spacehq.mc.protocol.data.game.world.block.BlockChangeRecord;
+import org.spacehq.mc.protocol.data.game.statistic.Statistic;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
+import org.spacehq.mc.protocol.packet.ingame.client.ClientRequestPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientResourcePackStatusPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientSettingsPacket;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.world.ClientTeleportConfirmPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerDifficultyPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerJoinGamePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerResourcePackSendPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerRespawnPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerStatisticsPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerHealthPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerSetSlotPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerWindowItemsPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.world.ServerBlockChangePacket;
-import org.spacehq.mc.protocol.packet.ingame.server.world.ServerChunkDataPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.world.ServerMultiBlockChangePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerWorldBorderPacket;
 import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.session.ConnectedEvent;
@@ -63,7 +64,7 @@ public class DefaultListener implements SessionListener {
 			list.add(sp);
 		}
 		
-		ClientSettingsPacket packet = new ClientSettingsPacket("null", 8, ChatVisibility.FULL, true, (SkinPart[])list.toArray(), Hand.MAIN_HAND);
+		ClientSettingsPacket packet = new ClientSettingsPacket("en_US", 8, ChatVisibility.FULL, true, (SkinPart[])list.toArray(), Hand.MAIN_HAND);
 		s.send(packet);
 	}
 
@@ -86,8 +87,12 @@ public class DefaultListener implements SessionListener {
 			bot.getLogger().log(Level.FINE, msg);
 		} else if (p instanceof ServerRespawnPacket) {
 			ServerRespawnPacket packet = (ServerRespawnPacket) p;
-			GameMode mode = packet.getGameMode();
-			bot.setGameMode(mode);
+			bot.setGameMode(packet.getGameMode());
+			if (bot.getDimension() != packet.getDimension()) {
+				bot.setDimension(packet.getDimension());
+			}
+			bot.setDifficulty(packet.getDifficulty());
+			bot.setWorldType(packet.getWorldType());
 		} else if (p instanceof ServerResourcePackSendPacket) {
 			ClientResourcePackStatusPacket packet1 = new ClientResourcePackStatusPacket(ResourcePackStatus.ACCEPTED);
 			ClientResourcePackStatusPacket packet2 = new ClientResourcePackStatusPacket(ResourcePackStatus.SUCCESSFULLY_LOADED);
@@ -103,6 +108,15 @@ public class DefaultListener implements SessionListener {
 			bot.setCurrentLoc(new EntityLocation(x, y, z, yaw, pitch));
 			ClientTeleportConfirmPacket confirm = new ClientTeleportConfirmPacket(packet.getTeleportId());
 			bot.getSession().send(confirm);
+			ClientPlayerPositionRotationPacket confirm2 = new ClientPlayerPositionRotationPacket(
+														true, bot.getCurrentLoc().getX(), 
+															bot.getCurrentLoc().getY(),
+															bot.getCurrentLoc().getZ(),
+															bot.getCurrentLoc().getYaw(), 
+															bot.getCurrentLoc().getPitch());
+			bot.getSession().send(confirm2);
+			ClientRequestPacket p2 = new ClientRequestPacket(ClientRequest.STATS);
+			bot.getSession().send(p2);
 		} else if (p instanceof ServerPlayerHealthPacket) {
 			ServerPlayerHealthPacket packet = (ServerPlayerHealthPacket) p;
 			float health = packet.getHealth();
@@ -126,24 +140,30 @@ public class DefaultListener implements SessionListener {
 			bot.setDifficulty(packet.getDifficulty());
 		} else if (p instanceof ServerRespawnPacket) {
 			ServerRespawnPacket packet = (ServerRespawnPacket) p;
-			bot.setDimension(packet.getDimension());
+			if (bot.getDimension() != packet.getDimension()) {
+				bot.setDimension(packet.getDimension());
+			}
 			bot.setDifficulty(packet.getDifficulty());
 			bot.setGameMode(packet.getGameMode());
 			bot.setWorldType(packet.getWorldType());
+		} else if (p instanceof ServerStatisticsPacket) {
+			ServerStatisticsPacket packet = (ServerStatisticsPacket) p;
+			Map<Statistic, Integer> map = packet.getStatistics();
+			bot.setStats(map);
 		}
 		//Chunk packets 
-		if (p instanceof ServerChunkDataPacket) {
+		/*if (p instanceof ServerChunkDataPacket) {
 			ServerChunkDataPacket packet = (ServerChunkDataPacket) p;
-			bot.chunks.add(packet.getColumn());
+			//TODO:
 		} else if (p instanceof ServerBlockChangePacket) {
 			ServerBlockChangePacket packet = (ServerBlockChangePacket) p;
-			bot.updateBlock(packet.getRecord());
+			//TODO: 
 		} else if (p instanceof ServerMultiBlockChangePacket) {
 			ServerMultiBlockChangePacket packet = (ServerMultiBlockChangePacket) p;
 			for (BlockChangeRecord data : packet.getRecords()) {
-				bot.updateBlock(data);
+				//TODO:
 			}
-		}
+		}*/
 		
 		if (p instanceof ServerWorldBorderPacket) {
 			ServerWorldBorderPacket packet = (ServerWorldBorderPacket) p;

@@ -1,6 +1,6 @@
 package cz.GravelCZLP.MinecraftBot.Utils;
 
-public class EntityLocation {
+public class EntityLocation implements Cloneable {
 
 	private double x;
 	private double y;
@@ -60,5 +60,22 @@ public class EntityLocation {
 
 	public void setPitch(float pitch) {
 		this.pitch = pitch;
+	}
+	public EntityLocation north() {
+		return null;
+	}
+	public EntityLocation south() {
+		return null;
+	}
+	public EntityLocation west() {
+		return null;
+	}
+	public EntityLocation east() {
+		return null;
+	}
+	
+	@Override
+	public EntityLocation clone() {
+		return new EntityLocation(x,y,z,yaw,pitch);
 	}
 }

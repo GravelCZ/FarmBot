@@ -41,6 +41,7 @@ import cz.GravelCZLP.MinecraftBot.Entites.Mob;
 import cz.GravelCZLP.MinecraftBot.Entites.Object;
 import cz.GravelCZLP.MinecraftBot.Entites.Painting;
 import cz.GravelCZLP.MinecraftBot.Entites.Player;
+import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 
 public class EntityPacketsListener implements SessionListener {
 	private Bot bot;
@@ -64,7 +65,8 @@ public class EntityPacketsListener implements SessionListener {
 		// spawn packets !
 		if (p instanceof ServerSpawnObjectPacket) {
 			ServerSpawnObjectPacket packet = (ServerSpawnObjectPacket) p;
-			Object obj = new Object(packet.getEntityId(), packet.getUUID(), packet.getType(), packet.getX(), packet.getY(), packet.getZ(), packet.getPitch(), packet.getYaw(), packet.getData(), packet.getMotionX(), packet.getMotionY(), packet.getMotionZ());
+			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch());
+			Object obj = new Object(packet.getEntityId(), packet.getUUID(), packet.getType(), loc, packet.getData(), packet.getMotionX(), packet.getMotionY(), packet.getMotionZ());
 			bot.nearbyObjects.add(obj);
 			bot.allEntities.add(obj);
 		} else if (p instanceof ServerSpawnPaintingPacket) {
@@ -74,17 +76,20 @@ public class EntityPacketsListener implements SessionListener {
 			bot.allEntities.add(painting);
 		} else if (p instanceof ServerSpawnPlayerPacket) {
 			ServerSpawnPlayerPacket packet = (ServerSpawnPlayerPacket) p;
-			Player player = new Player(packet.getEntityId(), packet.getUUID(), packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch(), packet.getMetadata());
+			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch());
+			Player player = new Player(packet.getEntityId(), packet.getUUID(), loc, packet.getMetadata());
 			bot.nearbyPlayers.add(player);
 			bot.allEntities.add(player);
 		} else if (p instanceof ServerSpawnMobPacket) {
 			ServerSpawnMobPacket packet = (ServerSpawnMobPacket) p;
-			Mob mob = new Mob(packet.getEntityId(), packet.getUUID(), packet.getType(), packet.getX(), packet.getY(), packet.getZ(), packet.getPitch(), packet.getYaw(), packet.getHeadYaw(), packet.getMotionX(), packet.getMotionY(), packet.getMotionZ(), packet.getMetadata());
+			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch());
+			Mob mob = new Mob(packet.getEntityId(), packet.getUUID(), packet.getType(), loc, packet.getYaw(), packet.getMotionX(), packet.getMotionY(), packet.getMotionZ(), packet.getMetadata());
 			bot.nearbyMobs.add(mob);
 			bot.allEntities.add(mob);
 		} else if (p instanceof ServerSpawnExpOrbPacket) {
 			ServerSpawnExpOrbPacket packet = (ServerSpawnExpOrbPacket) p;
-			Exporb orb = new Exporb(packet.getEntityId(), packet.getX(), packet.getY(), packet.getZ(), packet.getExp());
+			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ());
+			Exporb orb = new Exporb(packet.getEntityId(), loc, packet.getExp());
 			bot.nerbyXPs.add(orb);
 			bot.allEntities.add(orb);
 		}
@@ -97,16 +102,24 @@ public class EntityPacketsListener implements SessionListener {
 				for (int i : entitiesIds) {
 					if (i == en.getEntityId()) {
 						bot.allEntities.remove(en);
-						if (en instanceof Player) {
-							bot.nearbyPlayers.remove((Player) en);
-						} else if (en instanceof Mob) {
-							bot.nearbyMobs.remove((Mob) en);
-						} else if (en instanceof Object) {
-							bot.nearbyObjects.remove((Object) en);
-						} else if (en instanceof Painting) {
-							bot.nearbyPaintings.remove((Painting) en);
-						} else if (en instanceof Exporb) {
-							bot.nerbyXPs.remove((Exporb) en);
+						switch (en.getIdentifier()) {
+						case EXPERIENCE:
+							bot.nerbyXPs.remove(en);
+							break;
+						case MOB:
+							bot.nearbyMobs.remove(en);
+							break;
+						case OBJECT:
+							bot.nearbyObjects.remove(en);
+							break;
+						case PAINTING:
+							bot.nearbyPaintings.remove(en);
+							break;
+						case PLAYER:
+							bot.nearbyPlayers.remove(en);
+							break;
+						default:
+							break;
 						}
 					}
 				}
@@ -118,44 +131,96 @@ public class EntityPacketsListener implements SessionListener {
 			EquipmentSlot es = packet.getSlot();
 			for (Entity ent : bot.allEntities) {
 				if (ent.getEntityId() == id) {
-					if (ent instanceof Player || ent instanceof Mob) {
-						if (ent instanceof Player) {
-							Player player = (Player) ent;
-							player.getArmor().put(es, newItem);
-						} else if (ent instanceof Mob) {
-							Mob mob = (Mob) ent;
-							mob.getArmor().put(es, newItem);
+					switch (ent.getIdentifier()) {
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == id) {
+								player.getArmor().put(es, newItem);
+								break;
+							}
 						}
+						break;
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == id) {
+								mob.getArmor().put(es, newItem);
+								break;
+							}
+						}
+						break;
+					default:
+						break;
 					}
 				}
 			}
 		} else if (p instanceof ServerEntityHeadLookPacket) {
 			ServerEntityHeadLookPacket packet = (ServerEntityHeadLookPacket) p;
-			int entityId = packet.getEntityId();
-			float headYaw = packet.getHeadYaw();
+			int id = packet.getEntityId();
 			for (Entity ent : bot.allEntities) {
-				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.setYaw(headYaw);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;
-						mob.setHeadYaw(headYaw);
+				if (ent.getEntityId() == id) {
+					switch (ent.getIdentifier()) {
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == id) {
+								player.getLocation().setYaw(packet.getHeadYaw());
+								break;
+							}
+						}
+						break;
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == id) {
+								mob.getLocation().setYaw(packet.getHeadYaw());
+								break;
+							}
+						}
+						break;
+					case OBJECT:
+						for (Object obj : bot.nearbyObjects) {
+							if (obj.getEntityId() == id) {
+								obj.getLocation().setYaw(packet.getHeadYaw());
+								break;
+							}
+						}
+						break;
+					case EXPERIENCE:
+						for (Exporb exp : bot.nerbyXPs) {
+							if (exp.getEntityId() == id) {
+								exp.getLocation().setYaw(packet.getHeadYaw());
+								break;
+							}
+						}
+						break;
+					default:
+						break;
 					}
 				}
 			}
 		} else if (p instanceof ServerEntityMetadataPacket) {
 			ServerEntityMetadataPacket packet = (ServerEntityMetadataPacket) p;
-			int entityId = packet.getEntityId();
+			int id = packet.getEntityId();
 			EntityMetadata[] data = packet.getMetadata();
 			for (Entity ent : bot.allEntities) {
-				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.setMetadata(data);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;
-						mob.setMetadata(data);
+				if (ent.getEntityId() == id) {
+					switch (ent.getIdentifier()) {
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == id) {
+								player.setMetadata(data);
+								break;
+							}
+						}
+						break;
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == id) {
+								mob.setMetadata(data);
+								break;
+							}
+						}
+						break;
+					default:
+						break;
 					}
 				}
 			}
@@ -168,24 +233,60 @@ public class EntityPacketsListener implements SessionListener {
 			boolean onGround = packet.isOnGround();
 			for (Entity ent : bot.allEntities) {
 				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.setX(moveX);
-						player.setY(moveY);
-						player.setZ(moveZ);
-						player.setOnGround(onGround);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;
-						mob.setX(moveX);
-						mob.setY(moveY);
-						mob.setZ(moveZ);
-						mob.setOnGround(onGround);
-					} else if (ent instanceof Object) {
-						Object obj = (Object) ent;
-						obj.setX(moveX);
-						obj.setY(moveY);
-						obj.setZ(moveZ);
-						obj.setOnGround(onGround);
+					switch (ent.getIdentifier()) {
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == entityId) {
+								player.setOnGround(onGround);
+								player.getLocation().setX(moveX);
+								player.getLocation().setY(moveY);
+								player.getLocation().setZ(moveZ);
+								break;
+							}
+						}
+						break;
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == entityId) {
+								mob.setOnGround(onGround);
+								mob.getLocation().setX(moveX);
+								mob.getLocation().setY(moveY);
+								mob.getLocation().setZ(moveZ);
+								break;
+							}
+						}
+						break;
+					case OBJECT:
+						for (Object obj : bot.nearbyObjects) {
+							if (obj.getEntityId() == entityId) {
+								obj.setOnGround(onGround);
+								obj.getLocation().setX(moveX);
+								obj.getLocation().setY(moveY);
+								obj.getLocation().setZ(moveZ);
+								break;
+							}
+						}
+						break;
+					case EXPERIENCE:
+						for (Exporb exp : bot.nerbyXPs) {
+							if (exp.getEntityId() == entityId) {
+								exp.getLocation().setX(moveX);
+								exp.getLocation().setY(moveY);
+								exp.getLocation().setZ(moveZ);
+								break;
+							}
+						}
+						break;
+					case PAINTING:
+						for (Painting painting : bot.nearbyPaintings) {
+							if (painting.getEntityId() == entityId) {
+								painting.getLocation().setX(moveX);
+								painting.getLocation().setY(moveY);
+								painting.getLocation().setZ(moveZ);
+							}
+						}
+					default:
+						break;
 					}
 				}
 			}
@@ -200,30 +301,70 @@ public class EntityPacketsListener implements SessionListener {
 			float pitch = packet.getPitch();
 			for (Entity ent : bot.allEntities) {
 				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.setX(moveX);
-						player.setY(moveY);
-						player.setZ(moveZ);
-						player.setYaw(yaw);
-						player.setPitch(pitch);
-						player.setOnGround(onGround);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;
-						mob.setX(moveX);
-						mob.setY(moveY);
-						mob.setZ(moveZ);
-						mob.setYaw(yaw);
-						mob.setPitch(pitch);
-						mob.setOnGround(onGround);
-					} else if (ent instanceof Object) {
-						Object obj = (Object) ent;
-						obj.setX(moveX);
-						obj.setY(moveY);
-						obj.setZ(moveZ);
-						obj.setYaw(yaw);
-						obj.setPitch(pitch);
-						obj.setOnGround(onGround);
+					switch (ent.getIdentifier()) {
+					case EXPERIENCE:
+						for (Exporb exp : bot.nerbyXPs) {
+							if (exp.getEntityId() == entityId) {
+								exp.getLocation().setX(moveX);
+								exp.getLocation().setY(moveY);
+								exp.getLocation().setZ(moveZ);
+								exp.getLocation().setYaw(yaw);
+								exp.getLocation().setPitch(pitch);
+								break;
+							}
+						}
+						break;
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == entityId) {
+								mob.getLocation().setX(moveX);
+								mob.getLocation().setY(moveY);
+								mob.getLocation().setZ(moveZ);
+								mob.getLocation().setYaw(yaw);
+								mob.getLocation().setPitch(pitch);
+								mob.setOnGround(onGround);
+								break;
+							}
+						}
+						break;
+					case OBJECT:
+						for (Object obj : bot.nearbyObjects) {
+							if (obj.getEntityId() == entityId) {
+								obj.getLocation().setX(moveX);
+								obj.getLocation().setY(moveY);
+								obj.getLocation().setZ(moveZ);
+								obj.getLocation().setYaw(yaw);
+								obj.getLocation().setPitch(pitch);
+								obj.setOnGround(onGround);
+								break;
+							}
+						}
+						break;
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == entityId) {
+								player.getLocation().setX(moveX);
+								player.getLocation().setY(moveY);
+								player.getLocation().setZ(moveZ);
+								player.getLocation().setYaw(yaw);
+								player.getLocation().setPitch(pitch);
+								player.setOnGround(onGround);
+								break;
+							}
+						}
+						break;
+					case PAINTING:
+						for (Painting painting : bot.nearbyPaintings) {
+							if (painting.getEntityId() == entityId) {
+								painting.getLocation().setX(moveX);
+								painting.getLocation().setY(moveY);
+								painting.getLocation().setZ(moveZ);
+								painting.getLocation().setYaw(yaw);
+								painting.getLocation().setPitch(pitch);
+							}
+						}
+					default:
+						break;
 					}
 				}
 			}
@@ -233,15 +374,33 @@ public class EntityPacketsListener implements SessionListener {
 			List<Attribute> attributes = packet.getAttributes();
 			for (Entity ent : bot.allEntities) {
 				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.setAttributes(attributes);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;
-						mob.attributes = attributes;
-					} else if (ent instanceof Object) {
-						Object obj = (Object) ent;
-						obj.attributes = attributes;
+					switch (ent.getIdentifier()) {
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == entityId) {
+								mob.attributes = attributes;
+								break;
+							}
+						}
+						break;
+					case OBJECT:
+						for (Object obj : bot.nearbyObjects) {
+							if (obj.getEntityId() == entityId) {
+								obj.attributes = attributes;
+								break;
+							}
+						}
+						break;
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == entityId) {
+								player.setAttributes(attributes);
+								break;
+							}
+						}
+						break;
+					default:
+						break;
 					}
 				}
 			}
@@ -251,15 +410,34 @@ public class EntityPacketsListener implements SessionListener {
 			Effect effectToRemove = packet.getEffect();
 			for (Entity ent : bot.allEntities) {
 				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.effects.remove(effectToRemove);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;
-						mob.effects.remove(effectToRemove);
- 					} else if (ent instanceof Object) {
-						Object obj = (Object) ent;
-						obj.effects.remove(effectToRemove);
+					switch (ent.getIdentifier()) {
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == entityId) {
+								mob.effects.remove(effectToRemove);
+								break;
+							}
+						}
+						break;
+					case OBJECT:
+						for (Object obj : bot.nearbyObjects) {
+							if (obj.getEntityId() == entityId) {
+								obj.effects.remove(effectToRemove);
+								break;
+							}
+						}
+						break;
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == entityId) {
+								player.effects.remove(effectToRemove);
+								break;
+							}
+						}
+						break;
+					default:
+						break;
+						
 					}
 				}
 			}
@@ -270,18 +448,45 @@ public class EntityPacketsListener implements SessionListener {
 			float pitch = packet.getPitch();
 			for (Entity ent : bot.allEntities) {
 				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.setYaw(yaw);
-						player.setPitch(pitch);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;
-						mob.setYaw(yaw);
-						mob.setPitch(pitch);						
- 					} else if (ent instanceof Object) {
-						Object obj = (Object) ent;
-						obj.setYaw(yaw);
-						obj.setPitch(pitch);
+					switch (ent.getIdentifier()) {
+					case EXPERIENCE:
+						for (Exporb exp : bot.nerbyXPs) {
+							if (exp.getEntityId() == entityId) {
+								exp.getLocation().setPitch(pitch);
+								exp.getLocation().setYaw(yaw);
+								break;
+							}
+						}
+						break;
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == entityId) {
+								mob.getLocation().setPitch(pitch);
+								mob.getLocation().setYaw(yaw);
+								break;
+							}
+						}
+						break;
+					case OBJECT:
+						for (Object obj : bot.nearbyObjects) {
+							if (obj.getEntityId() == entityId) {
+								obj.getLocation().setPitch(pitch);
+								obj.getLocation().setYaw(yaw);
+								break;
+							}
+						}
+						break;
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == entityId) {
+								player.getLocation().setPitch(pitch);
+								player.getLocation().setYaw(yaw);
+								break;
+							}
+						}
+						break;
+					default:
+						break;
 					}
 				}
 			}
@@ -291,15 +496,34 @@ public class EntityPacketsListener implements SessionListener {
 			EntityStatus status = packet.getStatus();
 			for (Entity ent : bot.allEntities) {
 				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.setStatus(status);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;	
-						mob.setStatus(status);
- 					} else if (ent instanceof Object) {
-						Object obj = (Object) ent;
-						obj.setStatus(status);
+					switch (ent.getIdentifier()) {
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == entityId) {
+								mob.setStatus(status);
+								break;
+							}
+						}
+						break;
+					case OBJECT:
+						for (Object obj : bot.nearbyObjects) {
+							if (obj.getEntityId() == entityId) {
+								obj.setStatus(status);
+								break;
+							}
+						}
+						break;
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == entityId) {
+								player.setStatus(status);
+								break;
+							}
+						}
+						break;
+					default:
+						break;
+					
 					}
 				}
 			}
@@ -314,30 +538,51 @@ public class EntityPacketsListener implements SessionListener {
 			int entityId = packet.getEntityId();
  			for (Entity ent : bot.allEntities) {
 				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-						player.setX(X);
-						player.setY(Y);
-						player.setZ(Z);
-						player.setYaw(yaw);
-						player.setPitch(pitch);
-						player.setOnGround(onGround);
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;		
-						mob.setX(X);
-						mob.setY(Y);
-						mob.setZ(Z);
-						mob.setYaw(yaw);
-						mob.setPitch(pitch);
-						mob.setOnGround(onGround);
-						} else if (ent instanceof Object) {
-						Object obj = (Object) ent;
-						obj.setX(X);
-						obj.setY(Y);
-						obj.setZ(Z);
-						obj.setYaw(yaw);
-						obj.setPitch(pitch);
-						obj.setOnGround(onGround);
+					switch (ent.getIdentifier()) {
+					case EXPERIENCE:
+						for (Exporb exp : bot.nerbyXPs) {
+							if (exp.getEntityId() == entityId) {
+								exp.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+							}
+						}
+						break;
+					case MOB:
+						for (Mob mob : bot.nearbyMobs) {
+							if (mob.getEntityId() == entityId) {
+								mob.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								mob.setOnGround(onGround);
+								break;
+							}
+						}
+						break;
+					case OBJECT:
+						for (Object obj : bot.nearbyObjects) {
+							if (obj.getEntityId() == entityId) {
+								obj.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								obj.setOnGround(onGround);
+								break;
+							}
+						}
+						break;
+					case PAINTING:
+						for (Painting obj : bot.nearbyPaintings) {
+							if (obj.getEntityId() == entityId) {
+								obj.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								break;
+							}
+						}
+						break;
+					case PLAYER:
+						for (Player player : bot.nearbyPlayers) {
+							if (player.getEntityId() == entityId) {
+								player.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								player.setOnGround(onGround);
+								break;
+							}
+						}
+						break;
+					default:
+						break;
 					}
 				}
  			}
@@ -362,18 +607,4 @@ public class EntityPacketsListener implements SessionListener {
 
 	@Override
 	public void packetSent(PacketSentEvent arg0) {}
-	
-	/*
-	 			for (Entity ent : bot.allEntities) {
-				if (ent.getEntityId() == entityId) {
-					if (ent instanceof Player) {
-						Player player = (Player) ent;
-					} else if (ent instanceof Mob) {
-						Mob mob = (Mob) ent;						
- 					} else if (ent instanceof Object) {
-						Object obj = (Object) ent;
-					}
-				}
-			}
-	 */
 }

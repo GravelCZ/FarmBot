@@ -42,9 +42,9 @@
   		<url>https://repo.spacehq.org/content/repositories/releases/</url>
   	</repository>
   	<repository>
-            <id>spacehq</id>
-            <name>spacehq-snapshots</name>
-            <url>https://repo.spacehq.org/content/repositories/snapshots/</url>
+         <id>spacehq</id>
+         <name>spacehq-snapshots</name>
+         <url>https://repo.spacehq.org/content/repositories/snapshots/</url>
 	</repository>
   </repositories>
 </project>

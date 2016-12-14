@@ -53,5 +53,10 @@ public class Painting extends Entity{
 	public void setPosition(Position position) {
 		this.position = position;
 	}
+
+	@Override
+	public EntityIdentifier getIdentifier() {
+		return EntityIdentifier.PAINTING;
+	}
 	
 }

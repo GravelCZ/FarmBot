@@ -1,8 +1,12 @@
 package cz.GravelCZLP.MinecraftBot.Entites;
 
-public class Entity {
+import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
+
+public abstract class Entity {
 
 	protected int entityId;
+	
+	protected EntityLocation location;
 	
 	public Entity(int entityId) {
 		this.entityId = entityId;
@@ -16,4 +20,13 @@ public class Entity {
 		this.entityId = entityId;
 	}
 	
+	public EntityLocation getLocation() {
+		return location;
+	}
+	
+	public void setLocation(EntityLocation newLoc) {
+		this.location = newLoc;
+	}
+	
+	public abstract EntityIdentifier getIdentifier();
 }

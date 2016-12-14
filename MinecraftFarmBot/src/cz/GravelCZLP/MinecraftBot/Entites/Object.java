@@ -10,15 +10,12 @@ import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
 import org.spacehq.mc.protocol.data.game.entity.type.object.ObjectData;
 import org.spacehq.mc.protocol.data.game.entity.type.object.ObjectType;
 
+import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
+
 public class Object extends Entity{
 
 	private UUID uuid;
 	private ObjectType type;
-	private double x;
-	private double y;
-	private double z;
-	private float pitch;
-	private float yaw;
 	private ObjectData data;
 	private double motX;
 	private double motY;
@@ -29,17 +26,13 @@ public class Object extends Entity{
 	
 	private EntityStatus status;
 	
-	public Object(int entityId, UUID uuid, ObjectType type, double x, double y, double z, float pitch, float yaw,
+	public Object(int entityId, UUID uuid, ObjectType type, EntityLocation loc,
 			ObjectData data, double motX, double motY, double motZ) {
 		super(entityId);
 		this.entityId = entityId;
 		this.uuid = uuid;
 		this.type = type;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.pitch = pitch;
-		this.yaw = yaw;
+		super.location = loc;
 		this.data = data;
 		this.motX = motX;
 		this.motY = motY;
@@ -56,36 +49,6 @@ public class Object extends Entity{
 	}
 	public void setType(ObjectType type) {
 		this.type = type;
-	}
-	public double getX() {
-		return x;
-	}
-	public void setX(double x) {
-		this.x = x;
-	}
-	public double getY() {
-		return y;
-	}
-	public void setY(double y) {
-		this.y = y;
-	}
-	public double getZ() {
-		return z;
-	}
-	public void setZ(double z) {
-		this.z = z;
-	}
-	public float getPitch() {
-		return pitch;
-	}
-	public void setPitch(float pitch) {
-		this.pitch = pitch;
-	}
-	public float getYaw() {
-		return yaw;
-	}
-	public void setYaw(float yaw) {
-		this.yaw = yaw;
 	}
 	public ObjectData getData() {
 		return data;
@@ -122,6 +85,10 @@ public class Object extends Entity{
 	}
 	public void setStatus(EntityStatus status) {
 		this.status = status;
+	}
+	@Override
+	public EntityIdentifier getIdentifier() {
+		return EntityIdentifier.OBJECT;
 	}
 	
 }
