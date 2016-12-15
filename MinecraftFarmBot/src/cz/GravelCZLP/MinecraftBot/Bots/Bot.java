@@ -11,9 +11,7 @@ import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
 import org.spacehq.mc.protocol.data.game.entity.player.Hand;
-import org.spacehq.mc.protocol.data.game.setting.Difficulty;
 import org.spacehq.mc.protocol.data.game.statistic.Statistic;
-import org.spacehq.mc.protocol.data.game.world.WorldType;
 import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientRequestPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
@@ -35,6 +33,7 @@ import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
 import cz.GravelCZLP.MinecraftBot.Managers.BotManager.BotType;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 import cz.GravelCZLP.MinecraftBot.World.Border;
+import cz.GravelCZLP.MinecraftBot.World.World;
 
 public abstract class Bot {
 
@@ -52,12 +51,10 @@ public abstract class Bot {
 	
 	private int selfId;
 	
-	private int dimension;
-	private boolean hardcore;
-	private Difficulty difficulty;
 	private boolean reducedDebugInfo;
 	private int maxPlayers;
-	private WorldType worldType;
+	
+	private World currentWorld;
 	
     private boolean invincible;
     private boolean canFly;
@@ -339,30 +336,6 @@ public abstract class Bot {
 		this.selfId = selfId;
 	}
 
-	public int getDimension() {
-		return dimension;
-	}
-
-	public void setDimension(int dimension) {
-		this.dimension = dimension;
-	}
-
-	public boolean isHardcore() {
-		return hardcore;
-	}
-
-	public void setHardcore(boolean hardcore) {
-		this.hardcore = hardcore;
-	}
-
-	public Difficulty getDifficulty() {
-		return difficulty;
-	}
-
-	public void setDifficulty(Difficulty difficulty) {
-		this.difficulty = difficulty;
-	}
-
 	public boolean isReducedDebugInfo() {
 		return reducedDebugInfo;
 	}
@@ -379,14 +352,6 @@ public abstract class Bot {
 		this.maxPlayers = maxPlayers;
 	}
 
-	public WorldType getWorldType() {
-		return worldType;
-	}
-
-	public void setWorldType(WorldType worldType) {
-		this.worldType = worldType;
-	}
-
 	public Border getBorder() {
 		return border;
 	}
@@ -400,5 +365,18 @@ public abstract class Bot {
 
 	public void setStats(Map<Statistic, Integer> stats) {
 		this.stats = stats;
+	}
+
+	public World getCurrentWorld() {
+		return currentWorld;
+	}
+	
+	public void resetWorld() {
+		currentWorld = null;
+		currentWorld = new World();
+	}
+	
+	public void newWorld() {
+		currentWorld = new World();
 	}
 }

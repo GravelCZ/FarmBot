@@ -8,10 +8,14 @@ import java.util.logging.Level;
 import org.spacehq.mc.protocol.data.game.ClientRequest;
 import org.spacehq.mc.protocol.data.game.ResourcePackStatus;
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
+import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.player.Hand;
 import org.spacehq.mc.protocol.data.game.setting.ChatVisibility;
 import org.spacehq.mc.protocol.data.game.setting.SkinPart;
 import org.spacehq.mc.protocol.data.game.statistic.Statistic;
+import org.spacehq.mc.protocol.data.game.world.block.BlockChangeRecord;
+import org.spacehq.mc.protocol.data.game.world.block.BlockState;
+import org.spacehq.mc.protocol.data.game.world.block.value.BlockValueType;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientRequestPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientResourcePackStatusPacket;
@@ -29,6 +33,12 @@ import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPo
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerSetSlotPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerWindowItemsPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerBlockChangePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerBlockValuePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerMultiBlockChangePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerUnloadChunkPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerUpdateTileEntityPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerUpdateTimePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerWorldBorderPacket;
 import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.session.ConnectedEvent;
@@ -43,6 +53,7 @@ import cz.GravelCZLP.MinecraftBot.Inventory.ChestInventory;
 import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 import cz.GravelCZLP.MinecraftBot.World.Border;
+import cz.GravelCZLP.MinecraftBot.World.World.ChunkCoordinates;
 
 public class DefaultListener implements SessionListener {
 
@@ -88,11 +99,11 @@ public class DefaultListener implements SessionListener {
 		} else if (p instanceof ServerRespawnPacket) {
 			ServerRespawnPacket packet = (ServerRespawnPacket) p;
 			bot.setGameMode(packet.getGameMode());
-			if (bot.getDimension() != packet.getDimension()) {
-				bot.setDimension(packet.getDimension());
+			if (bot.getCurrentWorld().getDimension() != packet.getDimension()) {
+				bot.getCurrentWorld().setDimension(packet.getDimension());
 			}
-			bot.setDifficulty(packet.getDifficulty());
-			bot.setWorldType(packet.getWorldType());
+			bot.getCurrentWorld().setDifficulty(packet.getDifficulty());
+			bot.getCurrentWorld().setWorldType(packet.getWorldType());
 		} else if (p instanceof ServerResourcePackSendPacket) {
 			ClientResourcePackStatusPacket packet1 = new ClientResourcePackStatusPacket(ResourcePackStatus.ACCEPTED);
 			ClientResourcePackStatusPacket packet2 = new ClientResourcePackStatusPacket(ResourcePackStatus.SUCCESSFULLY_LOADED);
@@ -127,43 +138,53 @@ public class DefaultListener implements SessionListener {
 			bot.setSaturation(saturation);
 		} else if (p instanceof ServerJoinGamePacket) {
 			ServerJoinGamePacket packet = (ServerJoinGamePacket) p;
+			
 			bot.setSelfId(packet.getEntityId());
-			bot.setHardcore(packet.getHardcore());
-			bot.setGameMode(packet.getGameMode());
-			bot.setDimension(packet.getDimension());
-			bot.setDifficulty(packet.getDifficulty());
-			bot.setMaxPlayers(packet.getMaxPlayers());
-			bot.setWorldType(packet.getWorldType());
+			
 			bot.setReducedDebugInfo(packet.getReducedDebugInfo());
+			bot.setMaxPlayers(packet.getMaxPlayers());
+			bot.setGameMode(packet.getGameMode());
+			
+			bot.newWorld();
+			bot.getCurrentWorld().setHardcore(packet.getHardcore());
+			bot.getCurrentWorld().setDimension(packet.getDimension());
+			bot.getCurrentWorld().setDifficulty(packet.getDifficulty());
+			bot.getCurrentWorld().setWorldType(packet.getWorldType());
 		} else if (p instanceof ServerDifficultyPacket) {
 			ServerDifficultyPacket packet = (ServerDifficultyPacket) p;
-			bot.setDifficulty(packet.getDifficulty());
+			bot.getCurrentWorld().setDifficulty(packet.getDifficulty());
 		} else if (p instanceof ServerRespawnPacket) {
 			ServerRespawnPacket packet = (ServerRespawnPacket) p;
-			if (bot.getDimension() != packet.getDimension()) {
-				bot.setDimension(packet.getDimension());
+			if (bot.getCurrentWorld().getDimension() != packet.getDimension()) {
+				bot.resetWorld();
+				bot.getCurrentWorld().setDimension(packet.getDimension());
 			}
-			bot.setDifficulty(packet.getDifficulty());
+			bot.getCurrentWorld().setDifficulty(packet.getDifficulty());
 			bot.setGameMode(packet.getGameMode());
-			bot.setWorldType(packet.getWorldType());
+			bot.getCurrentWorld().setWorldType(packet.getWorldType());
 		} else if (p instanceof ServerStatisticsPacket) {
 			ServerStatisticsPacket packet = (ServerStatisticsPacket) p;
 			Map<Statistic, Integer> map = packet.getStatistics();
 			bot.setStats(map);
 		}
 		//Chunk packets 
-		/*if (p instanceof ServerChunkDataPacket) {
-			ServerChunkDataPacket packet = (ServerChunkDataPacket) p;
-			//TODO:
-		} else if (p instanceof ServerBlockChangePacket) {
-			ServerBlockChangePacket packet = (ServerBlockChangePacket) p;
-			//TODO: 
-		} else if (p instanceof ServerMultiBlockChangePacket) {
+		if (p instanceof ServerMultiBlockChangePacket) {
 			ServerMultiBlockChangePacket packet = (ServerMultiBlockChangePacket) p;
 			for (BlockChangeRecord data : packet.getRecords()) {
-				//TODO:
+				bot.getCurrentWorld().updateBlock(data.getPosition(), data.getBlock());
 			}
-		}*/
+		} else if (p instanceof ServerUnloadChunkPacket) {
+			ServerUnloadChunkPacket packet = (ServerUnloadChunkPacket) p;
+			ChunkCoordinates coords = new ChunkCoordinates(packet.getX(), packet.getZ());
+			bot.getCurrentWorld().unloadChunk(coords);
+		} else if (p instanceof ServerUpdateTimePacket) {
+			ServerUpdateTimePacket packet = (ServerUpdateTimePacket) p;
+			bot.getCurrentWorld().setAge(packet.getWorldAge());
+			bot.getCurrentWorld().setTime(packet.getTime());
+		} else if (p instanceof ServerBlockChangePacket) {
+			ServerBlockChangePacket packet = (ServerBlockChangePacket) p;
+			bot.getCurrentWorld().updateBlock(packet.getRecord().getPosition(), packet.getRecord().getBlock());
+		}
 		
 		if (p instanceof ServerWorldBorderPacket) {
 			ServerWorldBorderPacket packet = (ServerWorldBorderPacket) p;
