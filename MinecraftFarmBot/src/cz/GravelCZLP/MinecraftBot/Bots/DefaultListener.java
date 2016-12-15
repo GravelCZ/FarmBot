@@ -7,6 +7,8 @@ import java.util.logging.Level;
 
 import org.spacehq.mc.protocol.data.game.ClientRequest;
 import org.spacehq.mc.protocol.data.game.ResourcePackStatus;
+import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
+import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.player.Hand;

@@ -119,6 +119,106 @@ public class Mob extends Entity {
 	}
 	@Override
 	public EntityIdentifier getIdentifier() {
-		return EntityIdentifier.MOB
+		return EntityIdentifier.MOB;
+	}
+	public boolean isDangerous() {
+		switch(type) {
+		case BAT:
+			return false;
+		case BLAZE:
+			return true;
+		case CAVE_SPIDER:
+			return true;
+		case CHICKEN:
+			return false;
+		case COW:
+			return false;
+		case CREEPER:
+			return true;
+		case DONKEY:
+			return false;
+		case ELDER_GUARDIAN:
+			return true;
+		case ENDERMAN:
+			return true;
+		case ENDERMITE:
+			return true;
+		case ENDER_DRAGON:
+			return true;
+		case EVOCATION_ILLAGER:
+			return true;
+		case GHAST:
+			return true;
+		case GIANT_ZOMBIE:
+			return true;
+		case GUARDIAN:
+			return true;
+		case HORSE:
+			return false;
+		case HUSK:
+			return true;
+		case IRON_GOLEM:
+			return false;
+		case LLAMA:
+			return false;
+		case MAGMA_CUBE:
+			return true;
+		case MOOSHROOM:
+			return false;
+		case MULE:
+			return false;
+		case OCELOT:
+			return false;
+		case PIG:
+			return false;
+		case POLAR_BEAR:
+			return false;
+		case RABBIT:
+			return false;
+		case SHEEP:
+			return false;
+		case SHULKER:
+			return true;
+		case SILVERFISH:
+			return true;
+		case SKELETON:
+			return true;
+		case SKELETON_HORSE:
+			return true;
+		case SLIME:
+			return true;
+		case SNOWMAN:
+			return false;
+		case SPIDER:
+			return true;
+		case SQUID:
+			return false;
+		case STRAY:
+			return true;
+		case VEX:
+			return true;
+		case VILLAGER:
+			return false;
+		case VINDICATION_ILLAGER:
+			return true;
+		case WITCH:
+			return true;
+		case WITHER:
+			return true;
+		case WITHER_SKELETON:
+			return true;
+		case WOLF:
+			return false;
+		case ZOMBIE:
+			return true;
+		case ZOMBIE_HORSE:
+			return true;
+		case ZOMBIE_PIGMAN:
+			return true;
+		case ZOMBIE_VILLAGER:
+			return true;
+		default:
+			return true;
+		}
 	}
 }

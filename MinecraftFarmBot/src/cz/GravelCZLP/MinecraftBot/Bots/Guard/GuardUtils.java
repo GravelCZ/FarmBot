@@ -1,9 +1,14 @@
 package cz.GravelCZLP.MinecraftBot.Bots.Guard;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
 import cz.GravelCZLP.MinecraftBot.Entites.Entity;
+import cz.GravelCZLP.MinecraftBot.Entites.Mob;
+import cz.GravelCZLP.MinecraftBot.Entites.Player;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 import cz.GravelCZLP.MinecraftBot.Utils.MathHelp;
 
@@ -71,4 +76,64 @@ public class GuardUtils {
 		return Math.sqrt(distanceSquared(loc1, loc2));
 	}
 	
+	public List<Player> getNearbyPlayers(EntityLocation currentLoc, List<Player> loadedPlayers, double range) {
+		List<Player> players = new ArrayList<>();
+		for (Player p : loadedPlayers) {
+			double distance = distance(currentLoc, p.getLocation());
+			if (distance > range) {
+				continue;
+			}
+			players.add(p);
+		}
+		return players;
+	}
+	public Player getNearestPlayer(List<Player> nearbyPlayers, EntityLocation currentLoc) {
+		Player p = null;
+		
+		double prevDistance = 20.0;
+		
+		for (Player player : nearbyPlayers) {
+			double distance = distance(currentLoc, player.getLocation());
+			if (distance < prevDistance) {
+				prevDistance = distance;
+			} else {
+				continue;
+			}
+			p = player;
+		}
+		
+		return p;
+	}
+	public List<Mob> getNearbyDangerousMobs(List<Mob> mobs, EntityLocation currentLoc, double range) {
+		List<Mob> nearbyDangerousMobs = new ArrayList<>();
+		
+		for (Mob mob : mobs) {
+			if (mob.isDangerous()) {
+				double distance = distance(currentLoc, mob.getLocation());
+				if (distance > range) {
+					break;
+				}
+				nearbyDangerousMobs.add(mob);
+			}
+		}
+		
+		return nearbyDangerousMobs;
+	}
+	
+	public Mob getNearestDangrousMob(List<Mob> nearMobs, EntityLocation currentLoc) {
+		Mob m = null;
+		double prevDistance = 20.0;
+		for (Mob mob : nearMobs) {
+			if (mob.isDangerous()) {
+				double distance = distance(currentLoc, mob.getLocation());
+				if (distance < prevDistance) {
+					prevDistance = distance;
+				} else {
+					continue;
+				}
+				m = mob;
+			}
+		}
+		return m;
+	}
 }
