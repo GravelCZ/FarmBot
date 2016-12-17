@@ -29,8 +29,14 @@ import cz.GravelCZLP.MinecraftBot.Entites.Exporb;
 import cz.GravelCZLP.MinecraftBot.Entites.Mob;
 import cz.GravelCZLP.MinecraftBot.Entites.Painting;
 import cz.GravelCZLP.MinecraftBot.Entites.Player;
+import cz.GravelCZLP.MinecraftBot.Inventory.ICraftable;
+import cz.GravelCZLP.MinecraftBot.Inventory.IInventory;
 import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
+import cz.GravelCZLP.MinecraftBot.Inventory.WorkBenchInventory;
 import cz.GravelCZLP.MinecraftBot.Managers.BotManager.BotType;
+import cz.GravelCZLP.MinecraftBot.Utils.CraftingRecipe;
+import cz.GravelCZLP.MinecraftBot.Utils.CraftingUtils;
+import cz.GravelCZLP.MinecraftBot.Utils.CraftingUtils.CraftableMaterials;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 import cz.GravelCZLP.MinecraftBot.World.Border;
 import cz.GravelCZLP.MinecraftBot.World.World;
@@ -63,8 +69,8 @@ public abstract class Bot {
     private float flySpeed;
     private float walkSpeed;
 	
-	public int currentWindowId;
-	public Inventory currentOpenedInventory;
+	private IInventory openedInventory;
+	private int currentWindowId;
 	
 	private Map<Statistic, Integer> stats;
 
@@ -78,8 +84,6 @@ public abstract class Bot {
 	public List<Mob> nearbyMobs = new ArrayList<Mob>();
 	public List<Exporb> nerbyXPs = new ArrayList<Exporb>();
 	public List<Entity> allEntities = new ArrayList<Entity>();
-	
-	private Inventory inventory;
 	
 	private float experience;
 	private int level;
@@ -114,8 +118,12 @@ public abstract class Bot {
 				ClientPlayerPositionRotationPacket down = new ClientPlayerPositionRotationPacket(true, currentLoc.getX(), currentLoc.getY(), currentLoc.getZ(), 0, 90);
 				session.send(down);
 				boolean foundBukket = false;
-				for (int i = 0; i < inventory.getHotbar().length; i++) {
-					ItemStack item = inventory.getHotbar()[i];
+				Inventory inv = null;
+				if (openedInventory instanceof Inventory) {
+					inv = (Inventory) openedInventory;
+				}
+				for (int i = 0; i < inv.getHotbar().length; i++) {
+					ItemStack item = inv.getHotbar()[i];
 					if (item.getId() == 326) {
 						ClientPlayerChangeHeldItemPacket held = new ClientPlayerChangeHeldItemPacket(i);
 						session.send(held);;
@@ -133,8 +141,8 @@ public abstract class Bot {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				for (int i = 0; i < inventory.getHotbar().length; i++) {
-					ItemStack item = inventory.getHotbar()[i];
+				for (int i = 0; i < inv.getHotbar().length; i++) {
+					ItemStack item = inv.getHotbar()[i];
 					if (item.getId() == 325) {
 						ClientPlayerChangeHeldItemPacket held = new ClientPlayerChangeHeldItemPacket(i);
 						session.send(held);
@@ -145,6 +153,15 @@ public abstract class Bot {
 				session.send(use);
 			}
 		}
+	}
+	
+	public void craft(CraftableMaterials mat, int id) {
+		WorkBenchInventory inv = null;
+		if (openedInventory instanceof WorkBenchInventory) {
+			inv = (WorkBenchInventory) openedInventory;
+		}
+		CraftingRecipe recipe = CraftingUtils.getRecipe(mat, id);
+		inv.craft(recipe);
 	}
 	
 	public void addListener(SessionListener l) {
@@ -248,10 +265,14 @@ public abstract class Bot {
 		this.name = name;
 	}
 
-	public Inventory getInventory() {
-		return inventory;
+	public IInventory getInventory() {
+		return openedInventory;
 	}
 
+	public void setInventory(IInventory inv) {
+		this.openedInventory = inv;
+	}
+	
 	public boolean isInvincible() {
 		return invincible;
 	}
@@ -378,5 +399,13 @@ public abstract class Bot {
 	
 	public void newWorld() {
 		currentWorld = new World();
+	}
+
+	public int getCurrentWindowId() {
+		return currentWindowId;
+	}
+	
+	public void setCurrentWindowId(int i) {
+		currentWindowId = i;
 	}
 }

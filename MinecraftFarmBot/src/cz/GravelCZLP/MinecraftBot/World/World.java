@@ -56,6 +56,13 @@ public class World {
 		return chunks.get(coords).getBlocks().get(pos.getX(), pos.getY(), pos.getZ());
 	}
 	
+	public boolean isBlockLoaded(Position b) {
+		int chunkX = b.getX() / 16;
+		int chunkZ = b.getZ() / 16;
+		ChunkCoordinates coords = new ChunkCoordinates(chunkX, chunkZ);
+		return chunks.containsKey(coords);
+	}
+	
 	public void setDimension(int dimension) {
 		this.dimension = dimension;
 	}

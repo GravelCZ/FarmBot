@@ -1,79 +1,115 @@
 package cz.GravelCZLP.MinecraftBot.Inventory;
 
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
-import org.spacehq.mc.protocol.data.game.window.WindowAction;
-import org.spacehq.mc.protocol.data.game.window.WindowActionParam;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.window.ClientWindowActionPacket;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
 
-public class Inventory {
+public class Inventory implements IInventory {
 
-	protected int slots;
-	protected ItemStack items[];
-	protected ItemStack hotbar[];
+	private ItemStack inventoryArray[];
+	private ItemStack hotbar[];
+	private ItemStack armor[];
+	private ItemStack crafting[];
+	private ItemStack offhand;
 	
-	protected Bot bot;
+	private Bot bot;
 	
-	public Inventory(int slots, ItemStack[] items, Bot bot) {
-		this.slots = slots;
-		this.items = items;
+	@Override
+	public void deconstuctItemArrayToIvn(ItemStack[] array, Bot bot) {
+		if (array.length < 45) {
+			throw new IllegalArgumentException("ItemStack[].lenght < 45");
+		}
 		this.bot = bot;
+		for (int i = 0; i <= 4; i++) {
+			crafting[i] = array[i];
+		}
+		for (int i = 5; i <= 8; i++) {
+			int armorInt = 0;
+			armor[armorInt] = array[i];
+			armorInt++;
+		}
+		for (int i = 9; i <= 35; i++) {
+			int invInt = 0;
+			inventoryArray[invInt] = array[i];
+			invInt++;
+		}
+		for (int i = 36; i <= 44; i++) {
+			int hotbarInt = 0;
+			hotbar[hotbarInt] = array[i];
+			hotbarInt++;
+		}
+		offhand = array[45];
 	}
-	public Inventory(int slots, Bot bot) {
-		this(slots, null, bot);
-	}
-	public int getSlots() {
-		return slots;
-	}
-	public void setSlots(int slots) {
-		this.slots = slots;
-	}
-	public ItemStack[] getItems() {
-		return items;
-	}
-	public void setItems(ItemStack[] items) {
-		this.items = items;
-	}
+	
+	@Override
 	public void updateSlot(int slot, ItemStack item) {
-		items[slot] = item;
-	}
-	public ItemStack getItemAt(int slot) {
-		return items[slot];
-	}
-	public boolean hasFreeSpace() {
-		boolean freeSpace = false;
-		for (ItemStack item : items) {
-			if (item == null) {
-				freeSpace = true;
-				break;
-			}
+		if (slot <= 4) {
+			crafting[slot] = item;
+		} else if (slot <= 8 && slot > 4) {
+			armor[slot] = item;
+		} else if (slot <= 9 && slot > 35) {
+			inventoryArray[slot] = item;
+		} else if (slot <= 36 && slot > 44) {
+			hotbar[slot] = item;
+		} else if (slot == 45) {
+			offhand = item;
+		} else {
+			throw new IllegalArgumentException("Invalid lenght of slot index(slot:" + slot + ")");
 		}
-		return freeSpace;
 	}
-	public int[] getFreeSlots() {
-		int[] allSlots = new int[slots];
-		int[] freeSlots = new int[slots];
-		int currentSlot = 0;
-		for (int s : allSlots) {
-			if (getItemAt(s) == null) {
-				freeSlots[currentSlot] = s;
-				currentSlot++;
-			}
-		}
-		return freeSlots;
+	
+	public ItemStack getItemInOffHand() {
+		return offhand;
+	}
+	public ItemStack getItemInhand() {
+		return hotbar[bot.currentSlotInHand];
+	}
+	public ItemStack getItemInInventoryAt(int index) {
+		return inventoryArray[index];
+	}
+	public ItemStack getItemInHotbar(int index) {
+		return hotbar[index];
+	}
+	public ItemStack getItemInArmor(int index) {
+		return armor[index];
+	}
+	public ItemStack getItemInCrafting(int index) {
+		return crafting[index];
+	}
+	
+	
+	public void setItemInOffhand(ItemStack item) {
+		offhand = item;
+	}
+	public void setItemInHand(ItemStack item) {
+		hotbar[bot.currentSlotInHand] = item;
+	}
+	public void setItemInInventoryAt(int index, ItemStack item) {
+		inventoryArray[index] = item;
+	}
+	public void setItemInArmor(int index, ItemStack item) {
+		armor[index] = item;
+	}
+	public void setItemInHotBar(int index, ItemStack item) {
+		hotbar[index] = item;
+	}
+	public void setItemInCrafting(int index, ItemStack item) {
+		crafting[index] = item;
+	}
+	
+	
+	public ItemStack[] getInventory() {
+		return inventoryArray;
 	}
 	public ItemStack[] getHotbar() {
 		return hotbar;
 	}
-	public void setHotbar(ItemStack[] hotbar) {
-		this.hotbar = hotbar;
+	public ItemStack[] getCrafting() {
+		return crafting;
 	}
-	
-	public void moveInvHotbar(int windowId, int actionId, int slot, ItemStack clicked, WindowAction action, WindowActionParam param) {
-		ClientWindowActionPacket packet = new ClientWindowActionPacket(windowId, actionId, slot, clicked, action, param);
-		bot.getSession().send(packet);
+	public ItemStack[] getArmor() {
+		return armor;
 	}
 	public void moveHotbar(int index) {
 		ClientPlayerChangeHeldItemPacket p = new ClientPlayerChangeHeldItemPacket(index);

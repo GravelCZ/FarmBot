@@ -7,17 +7,11 @@ import java.util.logging.Level;
 
 import org.spacehq.mc.protocol.data.game.ClientRequest;
 import org.spacehq.mc.protocol.data.game.ResourcePackStatus;
-import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
-import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
-import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
-import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.player.Hand;
 import org.spacehq.mc.protocol.data.game.setting.ChatVisibility;
 import org.spacehq.mc.protocol.data.game.setting.SkinPart;
 import org.spacehq.mc.protocol.data.game.statistic.Statistic;
 import org.spacehq.mc.protocol.data.game.world.block.BlockChangeRecord;
-import org.spacehq.mc.protocol.data.game.world.block.BlockState;
-import org.spacehq.mc.protocol.data.game.world.block.value.BlockValueType;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientRequestPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientResourcePackStatusPacket;
@@ -36,10 +30,8 @@ import org.spacehq.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacke
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerSetSlotPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerWindowItemsPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerBlockChangePacket;
-import org.spacehq.mc.protocol.packet.ingame.server.world.ServerBlockValuePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerMultiBlockChangePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerUnloadChunkPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.world.ServerUpdateTileEntityPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerUpdateTimePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerWorldBorderPacket;
 import org.spacehq.packetlib.Session;
@@ -52,7 +44,9 @@ import org.spacehq.packetlib.event.session.SessionListener;
 import org.spacehq.packetlib.packet.Packet;
 
 import cz.GravelCZLP.MinecraftBot.Inventory.ChestInventory;
+import cz.GravelCZLP.MinecraftBot.Inventory.IInventory;
 import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
+import cz.GravelCZLP.MinecraftBot.Inventory.WorkBenchInventory;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 import cz.GravelCZLP.MinecraftBot.World.Border;
 import cz.GravelCZLP.MinecraftBot.World.World.ChunkCoordinates;
@@ -160,6 +154,9 @@ public class DefaultListener implements SessionListener {
 			if (bot.getCurrentWorld().getDimension() != packet.getDimension()) {
 				bot.resetWorld();
 				bot.getCurrentWorld().setDimension(packet.getDimension());
+			} else {
+				ClientChatPacket home = new ClientChatPacket("/home");
+				bot.getSession().send(home);
 			}
 			bot.getCurrentWorld().setDifficulty(packet.getDifficulty());
 			bot.setGameMode(packet.getGameMode());
@@ -226,40 +223,30 @@ public class DefaultListener implements SessionListener {
 		//Inventory packets
 		if (p instanceof ServerWindowItemsPacket) {
 			ServerWindowItemsPacket packet = (ServerWindowItemsPacket) p;
-			if (packet.getWindowId() == 0) {
-				bot.getInventory().setItems(packet.getItems());
-			}
+			bot.getInventory().deconstuctItemArrayToIvn(packet.getItems(), bot);
 		} else if (p instanceof ServerSetSlotPacket) {
 			ServerSetSlotPacket packet = (ServerSetSlotPacket) p;
-			if (packet.getWindowId() == 0) {
-				bot.getInventory().updateSlot(packet.getSlot(), packet.getItem());
-			}
+			bot.getInventory().updateSlot(packet.getSlot(), packet.getItem());
 		} else if (p instanceof ServerOpenWindowPacket) {
 			ServerOpenWindowPacket packet = (ServerOpenWindowPacket) p;
-			Inventory inv = new Inventory(packet.getSlots(), bot);
-			bot.currentWindowId = packet.getWindowId();
-			bot.currentOpenedInventory = inv;
-		} else if (p instanceof ServerWindowItemsPacket) {
-			ServerWindowItemsPacket packet = (ServerWindowItemsPacket) p;
-			ItemStack[] chestItems = new ItemStack[54];
-			for (int i = 0; i < 54; i++) {
-				chestItems[i] = packet.getItems()[i];
+			IInventory inv = null;
+			switch (packet.getType()) {
+			case CHEST:
+				inv = new ChestInventory();
+				break;
+			case CRAFTING_TABLE:
+				inv = new WorkBenchInventory();
+				break;
+			case FURNACE:
+				break;
+			case GENERIC_INVENTORY:
+				inv = new Inventory();
+				break;
+			default:
+				break;
 			}
-			ItemStack[] inventoryItems = new ItemStack[27];
-			for (int i = 54; i < (54 + 27); i++) {
-				int slot = 0;
-				inventoryItems[slot] = packet.getItems()[i];
-				slot++;
-			}
-			ItemStack[] hotbar = new ItemStack[8];
-			for (int i = (54 + 27); i < 8; i++) {
-				int slot = 0;
-				hotbar[slot] = packet.getItems()[i];
-				slot++;
-			}
-			bot.currentOpenedInventory.setHotbar(hotbar);
-			bot.currentOpenedInventory.setItems(inventoryItems);
-			((ChestInventory) bot.currentOpenedInventory).setChestItems(chestItems);
+			bot.setInventory(inv);
+			bot.setCurrentWindowId(packet.getOwnerEntityId());
 		}
 	}
 

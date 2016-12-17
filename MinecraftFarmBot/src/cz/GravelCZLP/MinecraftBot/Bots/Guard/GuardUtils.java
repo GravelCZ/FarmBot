@@ -3,6 +3,9 @@ package cz.GravelCZLP.MinecraftBot.Bots.Guard;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spacehq.mc.protocol.data.game.entity.player.Hand;
+import org.spacehq.mc.protocol.data.game.entity.player.InteractAction;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerInteractEntityPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
@@ -43,7 +46,7 @@ public class GuardUtils {
 			bot.getSession().send(move);
 		}
 	}
-	public final static float limitAngleChnage(final float current, final float intended, final float maxChange) {
+	public static float limitAngleChnage(float current, float intended, float maxChange) {
 		float change = intended - current;
 		if (change > maxChange) {
 			change = maxChange;
@@ -54,7 +57,7 @@ public class GuardUtils {
 		return current + change;
 	}
 	
-	public double distanceSquared(EntityLocation loc1, EntityLocation loc2) {
+	public static double distanceSquared(EntityLocation loc1, EntityLocation loc2) {
 		if (loc1 == null || loc2 == null) {
 			throw new IllegalArgumentException("EntityLocation cannot be null");
 		}
@@ -72,11 +75,11 @@ public class GuardUtils {
 		return squareX + squareY + squareZ;
 	}
 	
-	public double distance(EntityLocation loc1, EntityLocation loc2) {
+	public static double distance(EntityLocation loc1, EntityLocation loc2) {
 		return Math.sqrt(distanceSquared(loc1, loc2));
 	}
 	
-	public List<Player> getNearbyPlayers(EntityLocation currentLoc, List<Player> loadedPlayers, double range) {
+	public static List<Player> getNearbyPlayers(EntityLocation currentLoc, List<Player> loadedPlayers, double range) {
 		List<Player> players = new ArrayList<>();
 		for (Player p : loadedPlayers) {
 			double distance = distance(currentLoc, p.getLocation());
@@ -87,7 +90,7 @@ public class GuardUtils {
 		}
 		return players;
 	}
-	public Player getNearestPlayer(List<Player> nearbyPlayers, EntityLocation currentLoc) {
+	public static Player getNearestPlayer(List<Player> nearbyPlayers, EntityLocation currentLoc) {
 		Player p = null;
 		
 		double prevDistance = 20.0;
@@ -104,7 +107,7 @@ public class GuardUtils {
 		
 		return p;
 	}
-	public List<Mob> getNearbyDangerousMobs(List<Mob> mobs, EntityLocation currentLoc, double range) {
+	public static List<Mob> getNearbyDangerousMobs(List<Mob> mobs, EntityLocation currentLoc, double range) {
 		List<Mob> nearbyDangerousMobs = new ArrayList<>();
 		
 		for (Mob mob : mobs) {
@@ -120,7 +123,7 @@ public class GuardUtils {
 		return nearbyDangerousMobs;
 	}
 	
-	public Mob getNearestDangrousMob(List<Mob> nearMobs, EntityLocation currentLoc) {
+	public static Mob getNearestDangrousMob(List<Mob> nearMobs, EntityLocation currentLoc) {
 		Mob m = null;
 		double prevDistance = 20.0;
 		for (Mob mob : nearMobs) {
@@ -135,5 +138,9 @@ public class GuardUtils {
 			}
 		}
 		return m;
+	}
+	public static void attackEntity(Entity ent, GuardBot bot) {
+		ClientPlayerInteractEntityPacket packet = new ClientPlayerInteractEntityPacket(ent.getEntityId(), InteractAction.ATTACK, Hand.MAIN_HAND);
+		bot.getSession().send(packet);
 	}
 }
