@@ -1,7 +1,6 @@
 package cz.GravelCZLP.MinecraftBot.Inventory;
 
 import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
-import org.spacehq.mc.protocol.packet.ingame.client.window.ClientWindowActionPacket;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
 import cz.GravelCZLP.MinecraftBot.Utils.CraftingRecipe;
@@ -92,7 +91,8 @@ public class WorkBenchInventory implements IInventory, ICraftable {
 	
 	@Override
 	public void craft(CraftingRecipe recipe) {
-		String[] lines = recipe.getLines();
+		return;
+		/*String[] lines = recipe.getLines();
 		String[] separatedLine1 = lines[0].split(" ");
 		String[] separatedLine2 = lines[1].split(" ");
 		String[] separatedLine3 = lines[2].split(" ");
@@ -111,7 +111,7 @@ public class WorkBenchInventory implements IInventory, ICraftable {
 		
 		int[] line1 = new int[] {line1Slot1, line1Slot2, line1Slot3};
 		int[] line2 = new int[] {line2Slot1, line2Slot2, line2Slot3};
-		int[] line3 = new int[] {line3Slot1, line3Slot2, line3Slot3};
+		int[] line3 = new int[] {line3Slot1, line3Slot2, line3Slot3};*/
 		
 		
 	}
@@ -133,13 +133,39 @@ public class WorkBenchInventory implements IInventory, ICraftable {
 		return -1;
 	}
 	
-	public int getSlotWithItemAndAmout(int type, int amout) {
+	public int getSlotWithItemAndAmount(int type, int amount) {
 		for (int slot = 0; slot <= inventory.length; slot++) {
 			ItemStack currentItem = inventory[slot];
 			if (currentItem == null) {
 				continue;
 			}
-			if (currentItem.getId() == type && currentItem.getAmount() >= amout) {
+			if (currentItem.getId() == type && currentItem.getAmount() >= amount) {
+				return slot;
+			}
+		}
+		return -1;
+	}
+	
+	public int getSlotWithItemAndData(int type, int data) {
+		for (int slot = 0; slot < inventory.length; slot++) {
+			ItemStack currentItem = inventory[slot];
+			if (currentItem == null) {
+				continue;
+			}
+			if (currentItem.getId() == type && currentItem.getData() == data) {
+				return slot;
+			}
+		}
+		return -1;
+	}
+	
+	public int getSlotWithItemAndDataAndAmount(int type, int data, int amount) {
+		for (int slot = 0; slot < inventory.length; slot++) {
+			ItemStack currentItem = inventory[slot];
+			if (currentItem == null) {
+				continue;
+			}
+			if (currentItem.getId() == type && currentItem.getAmount() == amount && currentItem.getData() == data) {
 				return slot;
 			}
 		}

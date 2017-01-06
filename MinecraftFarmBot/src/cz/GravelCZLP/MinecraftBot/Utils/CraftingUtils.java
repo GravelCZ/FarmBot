@@ -36,6 +36,7 @@ public class CraftingUtils {
 		CraftingRecipe recipe = new CraftingRecipe(m.getLines()[0], m.getLines()[1], m.getLines()[2], CraftingType.WORKBENCH);
 		recipe.replace('D', materialId);
 		recipe.replace('S', 280);
+		recipe.replace('.', 0);
 		return recipe;
 	}
 	

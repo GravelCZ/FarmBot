@@ -1,5 +1,8 @@
 package cz.GravelCZLP.MinecraftBot.Utils;
 
+import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
+import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
+
 public class EntityLocation implements Cloneable {
 
 	private double x;
@@ -8,6 +11,15 @@ public class EntityLocation implements Cloneable {
 	
 	private float yaw;
 	private float pitch;
+	
+	public EntityLocation(Position pos) {
+		double x = (double) pos.getX();
+		double y = (double) pos.getY();
+		double z = (double) pos.getZ();
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
 	
 	public EntityLocation(double x, double y, double z) {
 		this(x,y,z,0,0);
@@ -62,16 +74,45 @@ public class EntityLocation implements Cloneable {
 		this.pitch = pitch;
 	}
 	public EntityLocation north() {
-		return null;
+		return new EntityLocation(getX(), getY() ,( getZ() - 1));
 	}
-	public EntityLocation south() {
-		return null;
-	}
-	public EntityLocation west() {
-		return null;
-	}
+
 	public EntityLocation east() {
-		return null;
+		return new EntityLocation((getX() + 1), getY() , getZ());
+	}
+
+	public EntityLocation south() {
+		return new EntityLocation(getX(), getY() ,( getZ() + 1));
+	}
+
+	public EntityLocation west() {
+		return new EntityLocation((getX() - 1), getY() , getZ());
+	}
+	
+	public EntityLocation up() {
+		return new EntityLocation(getX(), (getY() + 1), getZ());
+	}
+	
+	public EntityLocation down() {
+		return new EntityLocation(getX(), (getY() - 1), getZ());
+	}
+	public EntityLocation offset(BlockFace dir) {
+		switch (dir) {
+		case DOWN:
+			return down();
+		case EAST:
+			return east();
+		case NORTH:
+			return north();
+		case SOUTH:
+			return south();
+		case UP:
+			return up();
+		case WEST:
+			return west();
+		default:
+			return null;
+		}
 	}
 	
 	@Override
@@ -82,5 +123,26 @@ public class EntityLocation implements Cloneable {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public Position toPosition() {
+		return new Position((int)x, (int)y, (int)z);
+	}
+	
+	@Override
+	public String toString() {
+		return new 
+				StringBuffer()
+				.append("EntityLocation[X=")
+				.append(x)
+				.append(",Y=")
+				.append(y)
+				.append(",Z=")
+				.append(z)
+				.append(",Yaw=")
+				.append(yaw)
+				.append(",Pitch=")
+				.append(pitch)
+				.toString();
 	}
 }

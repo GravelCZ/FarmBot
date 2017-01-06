@@ -26,6 +26,7 @@ import org.spacehq.mc.protocol.packet.ingame.server.ServerRespawnPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerStatisticsPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerHealthPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerUseBedPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerOpenWindowPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerSetSlotPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.window.ServerWindowItemsPacket;
@@ -43,6 +44,7 @@ import org.spacehq.packetlib.event.session.PacketSentEvent;
 import org.spacehq.packetlib.event.session.SessionListener;
 import org.spacehq.packetlib.packet.Packet;
 
+import cz.GravelCZLP.MinecraftBot.Entites.Player;
 import cz.GravelCZLP.MinecraftBot.Inventory.ChestInventory;
 import cz.GravelCZLP.MinecraftBot.Inventory.IInventory;
 import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
@@ -165,6 +167,19 @@ public class DefaultListener implements SessionListener {
 			ServerStatisticsPacket packet = (ServerStatisticsPacket) p;
 			Map<Statistic, Integer> map = packet.getStatistics();
 			bot.setStats(map);
+		} else if (p instanceof ServerPlayerUseBedPacket) {
+			ServerPlayerUseBedPacket packet = (ServerPlayerUseBedPacket) p;
+			if (packet.getEntityId() == bot.getSelfId()) {
+				bot.setSleeping(true);
+				bot.setCurrentLoc(packet.getPosition());
+				return; // the only return ? :D so lonely :D
+			} else {
+				for (Player player : bot.nearbyPlayers) {
+					if (player.getEntityId() == packet.getEntityId()) {
+						player.setSleeping(true);	
+					}
+				}
+			}
 		}
 		//Chunk packets 
 		if (p instanceof ServerMultiBlockChangePacket) {

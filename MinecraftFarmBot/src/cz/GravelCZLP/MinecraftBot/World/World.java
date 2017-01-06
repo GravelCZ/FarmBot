@@ -8,6 +8,8 @@ import org.spacehq.mc.protocol.data.game.setting.Difficulty;
 import org.spacehq.mc.protocol.data.game.world.WorldType;
 import org.spacehq.mc.protocol.data.game.world.block.BlockState;
 
+import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
+
 public class World {
 
 	private int dimension;
@@ -41,6 +43,12 @@ public class World {
 	}
 	
 	public BlockState getBlock(Position pos) {
+		ChunkCoordinates coords = new ChunkCoordinates(pos.getX() / 16, pos.getZ() / 16);
+		return chunks.get(coords).getBlocks().get(pos.getX(), pos.getY(), pos.getZ());
+	}
+	
+	public BlockState getBlock(EntityLocation loc) {
+		Position pos = new Position((int)loc.getX(), (int)loc.getY(), (int)loc.getZ());
 		ChunkCoordinates coords = new ChunkCoordinates(pos.getX() / 16, pos.getZ() / 16);
 		return chunks.get(coords).getBlocks().get(pos.getX(), pos.getY(), pos.getZ());
 	}

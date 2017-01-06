@@ -18,7 +18,7 @@ public class EntityCheckThread extends Thread {
 	@Override
 	public void run() {
 		if (FriendUtils.isAggressive) {
-			Entity lastEntityDamagedby = bot.getLastEntityDamagedBy();
+			
 		} else {
 			
 		}

@@ -6,19 +6,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.spacehq.mc.protocol.MinecraftProtocol;
-import org.spacehq.mc.protocol.data.game.ClientRequest;
-import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
 import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
-import org.spacehq.mc.protocol.data.game.entity.player.Hand;
 import org.spacehq.mc.protocol.data.game.statistic.Statistic;
-import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
-import org.spacehq.mc.protocol.packet.ingame.client.ClientRequestPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPlaceBlockPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerUseItemPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
 import org.spacehq.packetlib.Client;
 import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.session.SessionListener;
@@ -29,9 +19,7 @@ import cz.GravelCZLP.MinecraftBot.Entites.Exporb;
 import cz.GravelCZLP.MinecraftBot.Entites.Mob;
 import cz.GravelCZLP.MinecraftBot.Entites.Painting;
 import cz.GravelCZLP.MinecraftBot.Entites.Player;
-import cz.GravelCZLP.MinecraftBot.Inventory.ICraftable;
 import cz.GravelCZLP.MinecraftBot.Inventory.IInventory;
-import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
 import cz.GravelCZLP.MinecraftBot.Inventory.WorkBenchInventory;
 import cz.GravelCZLP.MinecraftBot.Managers.BotManager.BotType;
 import cz.GravelCZLP.MinecraftBot.Utils.CraftingRecipe;
@@ -91,6 +79,8 @@ public abstract class Bot {
 	
 	private Border border;
 	
+	private boolean isSleeping;
+	
 	public Bot(String host, int port, MinecraftProtocol p) {
 		Client c = new Client(host, port, p, new TcpSessionFactory());
 		name = p.getProfile().getName();
@@ -98,61 +88,6 @@ public abstract class Bot {
 		addListener(new DefaultListener(this));
 		addListener(new EntityPacketsListener(this));
 		logger = Logger.getLogger(name);
-		startHealthLoop();
-	}
-	
-	long lastCheck;
-	
-	public void startHealthLoop() {
-		while ((System.currentTimeMillis() + 500) > lastCheck) {
-			if (health <= 0) {
-				lastDeathLocation = currentLoc.clone();
-				setAlive(false);
-				ClientRequestPacket r = new ClientRequestPacket(ClientRequest.RESPAWN);
-				session.send(r);
-				return;
-			}
-			if (health <= 4) {
-				ServerChatPacket home = new ServerChatPacket("/home");
-				session.send(home);
-				ClientPlayerPositionRotationPacket down = new ClientPlayerPositionRotationPacket(true, currentLoc.getX(), currentLoc.getY(), currentLoc.getZ(), 0, 90);
-				session.send(down);
-				boolean foundBukket = false;
-				Inventory inv = null;
-				if (openedInventory instanceof Inventory) {
-					inv = (Inventory) openedInventory;
-				}
-				for (int i = 0; i < inv.getHotbar().length; i++) {
-					ItemStack item = inv.getHotbar()[i];
-					if (item.getId() == 326) {
-						ClientPlayerChangeHeldItemPacket held = new ClientPlayerChangeHeldItemPacket(i);
-						session.send(held);;
-						foundBukket = true;
-						break;
-					}
-				}
-				if (!foundBukket) {
-					session.disconnect("");
-				}
-				ClientPlayerPlaceBlockPacket water = new ClientPlayerPlaceBlockPacket(new Position((int)currentLoc.getX(), (int)currentLoc.getY(), (int)currentLoc.getZ()), BlockFace.UP, Hand.MAIN_HAND, 0.5F, 0.5F, 0.5F);
-				session.send(water);
-				try {
-					Thread.sleep(250L);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				for (int i = 0; i < inv.getHotbar().length; i++) {
-					ItemStack item = inv.getHotbar()[i];
-					if (item.getId() == 325) {
-						ClientPlayerChangeHeldItemPacket held = new ClientPlayerChangeHeldItemPacket(i);
-						session.send(held);
-						break;
-					}
-				}
-				ClientPlayerUseItemPacket use = new ClientPlayerUseItemPacket(Hand.MAIN_HAND);
-				session.send(use);
-			}
-		}
 	}
 	
 	public void craft(CraftableMaterials mat, int id) {
@@ -190,6 +125,13 @@ public abstract class Bot {
 		this.currentLoc = currentLoc;
 	}
 
+	public void setCurrentLoc(Position pos) {
+		EntityLocation newLoc = new EntityLocation(pos);
+		newLoc.setYaw(currentLoc.getYaw());
+		newLoc.setPitch(currentLoc.getPitch());
+		currentLoc = newLoc;
+	}
+	
 	public boolean isRegistered() {
 		return registered;
 	}
@@ -252,15 +194,6 @@ public abstract class Bot {
 	public void setSaturation(float saturation) {
 		this.saturation = saturation;
 	}
-
-	public GameMode getGamemode() {
-		return gamemode;
-	}
-
-	public void setGamemode(GameMode gamemode) {
-		this.gamemode = gamemode;
-	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -407,5 +340,15 @@ public abstract class Bot {
 	
 	public void setCurrentWindowId(int i) {
 		currentWindowId = i;
+	}
+	public void setSleeping(boolean s) {
+		this.isSleeping = s;
+	}
+	public boolean isSleeping() {
+		return this.isSleeping;
+	}
+
+	public boolean isOnFire() {
+		return false;
 	}
 }

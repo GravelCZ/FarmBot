@@ -30,6 +30,8 @@ public class Player extends Entity {
     
     private EntityStatus status;;
     
+    private boolean isSleeping;
+    
 	public Player(int entityId, UUID uuid, EntityLocation loc, EntityMetadata[] metadata) {
 		super(entityId);
 		this.entityId = entityId;
@@ -85,5 +87,11 @@ public class Player extends Entity {
 	@Override
 	public EntityIdentifier getIdentifier() {
 		return EntityIdentifier.PLAYER;
+	}
+	public void setSleeping(boolean b) {
+		this.isSleeping = b;
+	}
+	public boolean isSleeping() {
+		return this.isSleeping;
 	}
 }
