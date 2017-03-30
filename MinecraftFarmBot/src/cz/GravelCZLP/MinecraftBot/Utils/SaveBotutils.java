@@ -95,5 +95,6 @@ public class SaveBotutils {
 				}
 			}
 		}, "Bot Safe Live Thread");
+		safeThread.start();
 	}
 }

@@ -5,7 +5,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
+import org.spacehq.mc.protocol.data.game.entity.metadata.MetadataType;
+
 import com.esotericsoftware.jsonbeans.Json;
+
+import cz.GravelCZLP.MinecraftBot.Entites.Player;
 
 public class FriendUtils {
 
@@ -71,5 +76,15 @@ public class FriendUtils {
 	
 	public static void addFriend(String name) {
 		friends.add(name);
+	}
+
+	public static boolean willAttack(Player nearestPlayer) {
+		String name = "";
+		for (EntityMetadata data : nearestPlayer.getMetadata()) {
+			if (data.getType() == MetadataType.STRING) {
+				name = (String) data.getValue();
+			}
+		}
+		return !friends.contains(name);
 	}
 }

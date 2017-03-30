@@ -1,7 +1,9 @@
 package cz.GravelCZLP.MinecraftBot.Bots.Farmer;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.spacehq.mc.protocol.MinecraftProtocol;
 import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
@@ -16,9 +18,9 @@ public class FarmerBot extends Bot {
 	private BlockPosition firstPositionOfBox;
 	private BlockPosition secondPositionOfBox;
 	
-	private List<BlockState> blocks = new ArrayList<>();
-	
-	private List<BlockState> farmlands = new ArrayList<>();
+	private HashMap<BlockState, BlockPosition> blocks = new HashMap<>();
+	private HashMap<BlockState, BlockPosition> farmlands = new HashMap<>();
+	private List<BlockPosition> placeSeeds = new LinkedList<>();
 	
 	public FarmerBot(String host, int port, MinecraftProtocol p) {
 		super(host, port, p);
@@ -37,16 +39,16 @@ public class FarmerBot extends Bot {
 		for (int x = firstPositionOfBox.getX(); x < secondPositionOfBox.getX(); x++) {
 			for (int z = firstPositionOfBox.getZ(); z < secondPositionOfBox.getZ(); z++) {
 				for (int y = firstPositionOfBox.getY(); y < secondPositionOfBox.getY(); y++) {
-					blocks.add(super.getCurrentWorld().getBlock(new Position(x, y, z)));
+					blocks.put(getCurrentWorld().getBlock(new Position(x, y, z)), new BlockPosition(x, y, z));
 				}
 			}
 		}
 		setupFarmLands();
 	}
 	private void setupFarmLands() {
-		for (BlockState state : blocks) {
-			if (state.getId() == 60) {
-				farmlands.add(state);
+		for (Entry<BlockState, BlockPosition> entry : blocks.entrySet()) {
+			if (entry.getKey().getId() == 60) {
+				farmlands.put(entry.getKey(), entry.getValue());
 			}
 		}
 	}

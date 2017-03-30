@@ -1,7 +1,7 @@
 package cz.GravelCZLP.MinecraftBot.Bots.Guard;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
-import cz.GravelCZLP.MinecraftBot.Entites.Entity;
+import cz.GravelCZLP.MinecraftBot.Entites.Player;
 import cz.GravelCZLP.MinecraftBot.Utils.FriendUtils;
 
 public class EntityCheckThread extends Thread {
@@ -18,7 +18,11 @@ public class EntityCheckThread extends Thread {
 	@Override
 	public void run() {
 		if (FriendUtils.isAggressive) {
-			
+			Player nearestPlayer = GuardUtils.getNearestPlayer(bot.nearbyPlayers, bot.getCurrentLoc());
+			if (FriendUtils.willAttack(nearestPlayer)) {
+				GuardUtils.faceEntity(nearestPlayer, bot);
+				GuardUtils.attackEntity(nearestPlayer, bot);
+			}
 		} else {
 			
 		}

@@ -14,6 +14,7 @@ import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.session.SessionListener;
 import org.spacehq.packetlib.tcp.TcpSessionFactory;
 
+import cz.GravelCZLP.MinecraftBot.Bots.Utils.MoveUtil;
 import cz.GravelCZLP.MinecraftBot.Entites.Entity;
 import cz.GravelCZLP.MinecraftBot.Entites.Exporb;
 import cz.GravelCZLP.MinecraftBot.Entites.Mob;
@@ -81,6 +82,8 @@ public abstract class Bot {
 	
 	private boolean isSleeping;
 	
+	public MoveUtil moveUtil;
+	
 	public Bot(String host, int port, MinecraftProtocol p) {
 		Client c = new Client(host, port, p, new TcpSessionFactory());
 		name = p.getProfile().getName();
@@ -88,6 +91,7 @@ public abstract class Bot {
 		addListener(new DefaultListener(this));
 		addListener(new EntityPacketsListener(this));
 		logger = Logger.getLogger(name);
+		moveUtil = new MoveUtil(this);
 	}
 	
 	public void craft(CraftableMaterials mat, int id) {
