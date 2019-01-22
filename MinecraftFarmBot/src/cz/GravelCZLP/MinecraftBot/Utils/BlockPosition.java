@@ -1,6 +1,6 @@
 package cz.GravelCZLP.MinecraftBot.Utils;
 
-import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.Position;
 
 public class BlockPosition extends Position {
 	

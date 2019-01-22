@@ -2,38 +2,39 @@ package cz.GravelCZLP.MinecraftBot.Bots;
 
 import java.util.List;
 
-import org.spacehq.mc.protocol.data.game.entity.Effect;
-import org.spacehq.mc.protocol.data.game.entity.EntityStatus;
-import org.spacehq.mc.protocol.data.game.entity.EquipmentSlot;
-import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
-import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
-import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityDestroyPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityEquipmentPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityHeadLookPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityMetadataPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityPositionPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityPositionRotationPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityPropertiesPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityRemoveEffectPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityRotationPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityStatusPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityTeleportPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerAbilitiesPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerChangeHeldItemPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerSetExperiencePacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnExpOrbPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnMobPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnObjectPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPaintingPacket;
-import org.spacehq.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket;
-import org.spacehq.packetlib.event.session.ConnectedEvent;
-import org.spacehq.packetlib.event.session.DisconnectedEvent;
-import org.spacehq.packetlib.event.session.DisconnectingEvent;
-import org.spacehq.packetlib.event.session.PacketReceivedEvent;
-import org.spacehq.packetlib.event.session.PacketSentEvent;
-import org.spacehq.packetlib.event.session.SessionListener;
-import org.spacehq.packetlib.packet.Packet;
+import com.github.steveice10.mc.protocol.data.game.entity.Effect;
+import com.github.steveice10.mc.protocol.data.game.entity.EntityStatus;
+import com.github.steveice10.mc.protocol.data.game.entity.EquipmentSlot;
+import com.github.steveice10.mc.protocol.data.game.entity.attribute.Attribute;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadata;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityDestroyPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityEquipmentPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityHeadLookPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityMetadataPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityPositionPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityPositionRotationPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityPropertiesPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityRemoveEffectPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityRotationPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityStatusPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityTeleportPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerAbilitiesPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerChangeHeldItemPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.player.ServerPlayerSetExperiencePacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnExpOrbPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnMobPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnObjectPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPaintingPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket;
+import com.github.steveice10.packetlib.event.session.ConnectedEvent;
+import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
+import com.github.steveice10.packetlib.event.session.DisconnectingEvent;
+import com.github.steveice10.packetlib.event.session.PacketReceivedEvent;
+import com.github.steveice10.packetlib.event.session.PacketSendingEvent;
+import com.github.steveice10.packetlib.event.session.PacketSentEvent;
+import com.github.steveice10.packetlib.event.session.SessionListener;
+import com.github.steveice10.packetlib.packet.Packet;
 
 import cz.GravelCZLP.MinecraftBot.Entites.Entity;
 import cz.GravelCZLP.MinecraftBot.Entites.Exporb;
@@ -65,43 +66,40 @@ public class EntityPacketsListener implements SessionListener {
 		// spawn packets !
 		if (p instanceof ServerSpawnObjectPacket) {
 			ServerSpawnObjectPacket packet = (ServerSpawnObjectPacket) p;
-			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch());
+			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch(), bot.getCurrentWorld());
 			Object obj = new Object(packet.getEntityId(), packet.getUUID(), packet.getType(), loc, packet.getData(), packet.getMotionX(), packet.getMotionY(), packet.getMotionZ());
 			bot.nearbyObjects.add(obj);
-			bot.allEntities.add(obj);
 		} else if (p instanceof ServerSpawnPaintingPacket) {
 			ServerSpawnPaintingPacket packet = (ServerSpawnPaintingPacket) p;
 			Painting painting = new Painting(packet.getEntityId(), packet.getUUID(), packet.getPaintingType(), packet.getDirection(), packet.getPosition());
 			bot.nearbyPaintings.add(painting);
-			bot.allEntities.add(painting);
 		} else if (p instanceof ServerSpawnPlayerPacket) {
 			ServerSpawnPlayerPacket packet = (ServerSpawnPlayerPacket) p;
-			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch());
+			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch(), bot.getCurrentWorld());
 			Player player = new Player(packet.getEntityId(), packet.getUUID(), loc, packet.getMetadata());
 			bot.nearbyPlayers.add(player);
-			bot.allEntities.add(player);
 		} else if (p instanceof ServerSpawnMobPacket) {
 			ServerSpawnMobPacket packet = (ServerSpawnMobPacket) p;
-			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch());
+			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), packet.getYaw(), packet.getPitch(), bot.getCurrentWorld());
 			Mob mob = new Mob(packet.getEntityId(), packet.getUUID(), packet.getType(), loc, packet.getYaw(), packet.getMotionX(), packet.getMotionY(), packet.getMotionZ(), packet.getMetadata());
 			bot.nearbyMobs.add(mob);
-			bot.allEntities.add(mob);
 		} else if (p instanceof ServerSpawnExpOrbPacket) {
 			ServerSpawnExpOrbPacket packet = (ServerSpawnExpOrbPacket) p;
-			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ());
+			EntityLocation loc = new EntityLocation(packet.getX(), packet.getY(), packet.getZ(), bot.getCurrentWorld());
 			Exporb orb = new Exporb(packet.getEntityId(), loc, packet.getExp());
 			bot.nerbyXPs.add(orb);
-			bot.allEntities.add(orb);
 		}
 		
 		//entity packets
 		if (p instanceof ServerEntityDestroyPacket) {
 			ServerEntityDestroyPacket packet = (ServerEntityDestroyPacket) p;
 			int[] entitiesIds = packet.getEntityIds();
-			for(Entity en : bot.allEntities) {
-				for (int i : entitiesIds) {
-					if (i == en.getEntityId()) {
-						bot.allEntities.remove(en);
+			java.util.Iterator<? extends Entity> iter = bot.getAllEntities().iterator();
+			
+			while (iter.hasNext()) {
+				Entity en = iter.next();
+				for (int id : entitiesIds) {
+					if (id == en.getEntityId()) {
 						switch (en.getIdentifier()) {
 						case EXPERIENCE:
 							bot.nerbyXPs.remove(en);
@@ -129,7 +127,7 @@ public class EntityPacketsListener implements SessionListener {
 			ItemStack newItem = packet.getItem();
 			int id = packet.getEntityId();
 			EquipmentSlot es = packet.getSlot();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == id) {
 					switch (ent.getIdentifier()) {
 					case PLAYER:
@@ -156,7 +154,7 @@ public class EntityPacketsListener implements SessionListener {
 		} else if (p instanceof ServerEntityHeadLookPacket) {
 			ServerEntityHeadLookPacket packet = (ServerEntityHeadLookPacket) p;
 			int id = packet.getEntityId();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == id) {
 					switch (ent.getIdentifier()) {
 					case PLAYER:
@@ -200,7 +198,7 @@ public class EntityPacketsListener implements SessionListener {
 			ServerEntityMetadataPacket packet = (ServerEntityMetadataPacket) p;
 			int id = packet.getEntityId();
 			EntityMetadata[] data = packet.getMetadata();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == id) {
 					switch (ent.getIdentifier()) {
 					case PLAYER:
@@ -231,16 +229,14 @@ public class EntityPacketsListener implements SessionListener {
 			double moveY = packet.getMovementY();
 			double moveZ = packet.getMovementZ();
 			boolean onGround = packet.isOnGround();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == entityId) {
 					switch (ent.getIdentifier()) {
 					case PLAYER:
 						for (Player player : bot.nearbyPlayers) {
 							if (player.getEntityId() == entityId) {
 								player.setOnGround(onGround);
-								player.getLocation().setX(moveX);
-								player.getLocation().setY(moveY);
-								player.getLocation().setZ(moveZ);
+								player.getLocation().add(moveX, moveY, moveZ);
 								break;
 							}
 						}
@@ -249,9 +245,7 @@ public class EntityPacketsListener implements SessionListener {
 						for (Mob mob : bot.nearbyMobs) {
 							if (mob.getEntityId() == entityId) {
 								mob.setOnGround(onGround);
-								mob.getLocation().setX(moveX);
-								mob.getLocation().setY(moveY);
-								mob.getLocation().setZ(moveZ);
+								mob.getLocation().add(moveX, moveY, moveZ);
 								break;
 							}
 						}
@@ -260,9 +254,7 @@ public class EntityPacketsListener implements SessionListener {
 						for (Object obj : bot.nearbyObjects) {
 							if (obj.getEntityId() == entityId) {
 								obj.setOnGround(onGround);
-								obj.getLocation().setX(moveX);
-								obj.getLocation().setY(moveY);
-								obj.getLocation().setZ(moveZ);
+								obj.getLocation().add(moveX, moveY, moveZ);
 								break;
 							}
 						}
@@ -270,9 +262,7 @@ public class EntityPacketsListener implements SessionListener {
 					case EXPERIENCE:
 						for (Exporb exp : bot.nerbyXPs) {
 							if (exp.getEntityId() == entityId) {
-								exp.getLocation().setX(moveX);
-								exp.getLocation().setY(moveY);
-								exp.getLocation().setZ(moveZ);
+								exp.getLocation().add(moveX, moveY, moveZ);
 								break;
 							}
 						}
@@ -280,9 +270,7 @@ public class EntityPacketsListener implements SessionListener {
 					case PAINTING:
 						for (Painting painting : bot.nearbyPaintings) {
 							if (painting.getEntityId() == entityId) {
-								painting.getLocation().setX(moveX);
-								painting.getLocation().setY(moveY);
-								painting.getLocation().setZ(moveZ);
+								painting.getLocation().add(moveX, moveY, moveZ);
 							}
 						}
 					default:
@@ -299,15 +287,13 @@ public class EntityPacketsListener implements SessionListener {
 			boolean onGround = packet.isOnGround();
 			float yaw = packet.getYaw();
 			float pitch = packet.getPitch();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == entityId) {
 					switch (ent.getIdentifier()) {
 					case EXPERIENCE:
 						for (Exporb exp : bot.nerbyXPs) {
 							if (exp.getEntityId() == entityId) {
-								exp.getLocation().setX(moveX);
-								exp.getLocation().setY(moveY);
-								exp.getLocation().setZ(moveZ);
+								exp.getLocation().add(moveX, moveY, moveZ);
 								exp.getLocation().setYaw(yaw);
 								exp.getLocation().setPitch(pitch);
 								break;
@@ -317,9 +303,7 @@ public class EntityPacketsListener implements SessionListener {
 					case MOB:
 						for (Mob mob : bot.nearbyMobs) {
 							if (mob.getEntityId() == entityId) {
-								mob.getLocation().setX(moveX);
-								mob.getLocation().setY(moveY);
-								mob.getLocation().setZ(moveZ);
+								mob.getLocation().add(moveX, moveY, moveZ);
 								mob.getLocation().setYaw(yaw);
 								mob.getLocation().setPitch(pitch);
 								mob.setOnGround(onGround);
@@ -330,9 +314,7 @@ public class EntityPacketsListener implements SessionListener {
 					case OBJECT:
 						for (Object obj : bot.nearbyObjects) {
 							if (obj.getEntityId() == entityId) {
-								obj.getLocation().setX(moveX);
-								obj.getLocation().setY(moveY);
-								obj.getLocation().setZ(moveZ);
+								obj.getLocation().add(moveX, moveY, moveZ);
 								obj.getLocation().setYaw(yaw);
 								obj.getLocation().setPitch(pitch);
 								obj.setOnGround(onGround);
@@ -343,9 +325,7 @@ public class EntityPacketsListener implements SessionListener {
 					case PLAYER:
 						for (Player player : bot.nearbyPlayers) {
 							if (player.getEntityId() == entityId) {
-								player.getLocation().setX(moveX);
-								player.getLocation().setY(moveY);
-								player.getLocation().setZ(moveZ);
+								player.getLocation().add(moveX, moveY, moveZ);
 								player.getLocation().setYaw(yaw);
 								player.getLocation().setPitch(pitch);
 								player.setOnGround(onGround);
@@ -356,9 +336,7 @@ public class EntityPacketsListener implements SessionListener {
 					case PAINTING:
 						for (Painting painting : bot.nearbyPaintings) {
 							if (painting.getEntityId() == entityId) {
-								painting.getLocation().setX(moveX);
-								painting.getLocation().setY(moveY);
-								painting.getLocation().setZ(moveZ);
+								painting.getLocation().add(moveX, moveY, moveZ);
 								painting.getLocation().setYaw(yaw);
 								painting.getLocation().setPitch(pitch);
 							}
@@ -372,7 +350,7 @@ public class EntityPacketsListener implements SessionListener {
 			ServerEntityPropertiesPacket packet = (ServerEntityPropertiesPacket) p;
 			int entityId = packet.getEntityId();
 			List<Attribute> attributes = packet.getAttributes();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == entityId) {
 					switch (ent.getIdentifier()) {
 					case MOB:
@@ -408,7 +386,7 @@ public class EntityPacketsListener implements SessionListener {
 			ServerEntityRemoveEffectPacket packet = (ServerEntityRemoveEffectPacket) p;
 			int entityId = packet.getEntityId();
 			Effect effectToRemove = packet.getEffect();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == entityId) {
 					switch (ent.getIdentifier()) {
 					case MOB:
@@ -446,7 +424,7 @@ public class EntityPacketsListener implements SessionListener {
 			int entityId = packet.getEntityId();
 			float yaw = packet.getYaw();
 			float pitch = packet.getPitch();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == entityId) {
 					switch (ent.getIdentifier()) {
 					case EXPERIENCE:
@@ -494,7 +472,7 @@ public class EntityPacketsListener implements SessionListener {
 			ServerEntityStatusPacket packet = (ServerEntityStatusPacket) p;
 			int entityId = packet.getEntityId();
 			EntityStatus status = packet.getStatus();
-			for (Entity ent : bot.allEntities) {
+			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == entityId) {
 					switch (ent.getIdentifier()) {
 					case MOB:
@@ -536,20 +514,20 @@ public class EntityPacketsListener implements SessionListener {
 			float yaw = packet.getYaw();
 			float pitch = packet.getPitch();
 			int entityId = packet.getEntityId();
- 			for (Entity ent : bot.allEntities) {
+ 			for (Entity ent : bot.getAllEntities()) {
 				if (ent.getEntityId() == entityId) {
 					switch (ent.getIdentifier()) {
 					case EXPERIENCE:
 						for (Exporb exp : bot.nerbyXPs) {
 							if (exp.getEntityId() == entityId) {
-								exp.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								exp.setLocation(new EntityLocation(X, Y, Z, yaw, pitch, bot.getCurrentWorld()));
 							}
 						}
 						break;
 					case MOB:
 						for (Mob mob : bot.nearbyMobs) {
 							if (mob.getEntityId() == entityId) {
-								mob.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								mob.setLocation(new EntityLocation(X, Y, Z, yaw, pitch, bot.getCurrentWorld()));
 								mob.setOnGround(onGround);
 								break;
 							}
@@ -558,7 +536,7 @@ public class EntityPacketsListener implements SessionListener {
 					case OBJECT:
 						for (Object obj : bot.nearbyObjects) {
 							if (obj.getEntityId() == entityId) {
-								obj.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								obj.setLocation(new EntityLocation(X, Y, Z, yaw, pitch, bot.getCurrentWorld()));
 								obj.setOnGround(onGround);
 								break;
 							}
@@ -567,7 +545,7 @@ public class EntityPacketsListener implements SessionListener {
 					case PAINTING:
 						for (Painting obj : bot.nearbyPaintings) {
 							if (obj.getEntityId() == entityId) {
-								obj.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								obj.setLocation(new EntityLocation(X, Y, Z, yaw, pitch, bot.getCurrentWorld()));
 								break;
 							}
 						}
@@ -575,7 +553,7 @@ public class EntityPacketsListener implements SessionListener {
 					case PLAYER:
 						for (Player player : bot.nearbyPlayers) {
 							if (player.getEntityId() == entityId) {
-								player.setLocation(new EntityLocation(X, Y, Z, yaw, pitch));
+								player.setLocation(new EntityLocation(X, Y, Z, yaw, pitch, bot.getCurrentWorld()));
 								player.setOnGround(onGround);
 								break;
 							}
@@ -607,4 +585,9 @@ public class EntityPacketsListener implements SessionListener {
 
 	@Override
 	public void packetSent(PacketSentEvent arg0) {}
+
+	@Override
+	public void packetSending(PacketSendingEvent event) {
+		
+	}
 }

@@ -1,7 +1,10 @@
 package cz.GravelCZLP.MinecraftBot.Utils;
 
-import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
-import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.Position;
+import com.github.steveice10.mc.protocol.data.game.world.block.BlockFace;
+import com.github.steveice10.mc.protocol.data.game.world.block.BlockState;
+
+import cz.GravelCZLP.MinecraftBot.World.World;
 
 public class EntityLocation implements Cloneable {
 
@@ -12,28 +15,47 @@ public class EntityLocation implements Cloneable {
 	private float yaw;
 	private float pitch;
 	
-	public EntityLocation(Position pos) {
+	private World world;
+	
+	public EntityLocation(Position pos, World w) {
 		double x = (double) pos.getX();
 		double y = (double) pos.getY();
 		double z = (double) pos.getZ();
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.world = w;
 	}
 	
-	public EntityLocation(double x, double y, double z) {
-		this(x,y,z,0,0);
+	public EntityLocation(double x, double y, double z, World w) {
+		this(x,y,z,0,0,w);
 	}
 	
-	public EntityLocation(double x, double y, double z, float yaw, float pitch) {
+	public EntityLocation(double x, double y, double z, float yaw, float pitch, World w) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		
 		this.yaw = yaw;
 		this.pitch = pitch;
+		
+		this.world = w;
 	}
 
+	public EntityLocation add(double x, double y, double z) {
+		this.x += x;
+		this.y += y;
+		this.z += z;
+		return this;
+	}
+	
+	public EntityLocation add(int x, int y, int z) {
+		this.x += x;
+		this.y += y;
+		this.z += z;
+		return this;
+	}
+	
 	public double getX() {
 		return x;
 	}
@@ -73,28 +95,33 @@ public class EntityLocation implements Cloneable {
 	public void setPitch(float pitch) {
 		this.pitch = pitch;
 	}
+	
+	public World getWorld() {
+		return world;
+	}
+	
 	public EntityLocation north() {
-		return new EntityLocation(getX(), getY() ,( getZ() - 1));
+		return new EntityLocation(getX(), getY() ,( getZ() - 1), world);
 	}
 
 	public EntityLocation east() {
-		return new EntityLocation((getX() + 1), getY() , getZ());
+		return new EntityLocation((getX() + 1), getY() , getZ(), world);
 	}
 
 	public EntityLocation south() {
-		return new EntityLocation(getX(), getY() ,( getZ() + 1));
+		return new EntityLocation(getX(), getY() ,( getZ() + 1), world);
 	}
 
 	public EntityLocation west() {
-		return new EntityLocation((getX() - 1), getY() , getZ());
+		return new EntityLocation((getX() - 1), getY() , getZ(), world);
 	}
 	
 	public EntityLocation up() {
-		return new EntityLocation(getX(), (getY() + 1), getZ());
+		return new EntityLocation(getX(), (getY() + 1), getZ(), world);
 	}
 	
 	public EntityLocation down() {
-		return new EntityLocation(getX(), (getY() - 1), getZ());
+		return new EntityLocation(getX(), (getY() - 1), getZ(), world);
 	}
 	public EntityLocation offset(BlockFace dir) {
 		switch (dir) {
@@ -117,12 +144,7 @@ public class EntityLocation implements Cloneable {
 	
 	@Override
 	public EntityLocation clone() {
-		try {
-			return (EntityLocation) super.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return new EntityLocation(x, y, z, yaw, pitch, world);
 	}
 
 	public Position toPosition() {
@@ -144,5 +166,9 @@ public class EntityLocation implements Cloneable {
 				.append(",Pitch=")
 				.append(pitch)
 				.toString();
+	}
+
+	public BlockState getBlock() {
+		return world.getBlock(this);
 	}
 }

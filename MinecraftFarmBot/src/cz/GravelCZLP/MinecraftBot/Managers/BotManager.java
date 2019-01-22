@@ -6,9 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spacehq.mc.protocol.MinecraftProtocol;
-
 import com.esotericsoftware.jsonbeans.Json;
+import com.github.steveice10.mc.protocol.MinecraftProtocol;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
 import cz.GravelCZLP.MinecraftBot.Bots.Farmer.FarmerBot;
@@ -59,6 +58,7 @@ public class BotManager {
 				if (guardBot.isRegistered()) {
 					guardBot.setPassword(config.password);
 				}
+				bots.add(guardBot);
 				break;
 			case MINER:
 				MinerBot minerBot = new MinerBot(host, port, new MinecraftProtocol(config.name));
@@ -66,6 +66,7 @@ public class BotManager {
 				if (minerBot.isRegistered()) {
 					minerBot.setPassword(config.password);
 				}
+				bots.add(minerBot);
 				break;
 			default:
 				break;

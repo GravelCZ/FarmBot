@@ -1,6 +1,6 @@
 package cz.GravelCZLP.MinecraftBot.Bots.Guard;
 
-import org.spacehq.mc.protocol.MinecraftProtocol;
+import com.github.steveice10.mc.protocol.MinecraftProtocol;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
 import cz.GravelCZLP.MinecraftBot.Entites.Entity;

@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import org.spacehq.mc.protocol.data.game.entity.Effect;
-import org.spacehq.mc.protocol.data.game.entity.EntityStatus;
-import org.spacehq.mc.protocol.data.game.entity.EquipmentSlot;
-import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
-import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
-import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
-import org.spacehq.mc.protocol.data.game.entity.type.MobType;
+import com.github.steveice10.mc.protocol.data.game.entity.Effect;
+import com.github.steveice10.mc.protocol.data.game.entity.EntityStatus;
+import com.github.steveice10.mc.protocol.data.game.entity.EquipmentSlot;
+import com.github.steveice10.mc.protocol.data.game.entity.attribute.Attribute;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadata;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
+import com.github.steveice10.mc.protocol.data.game.entity.type.MobType;
 
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 

@@ -1,6 +1,6 @@
 package cz.GravelCZLP.MinecraftBot.Inventory;
 
-import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
 

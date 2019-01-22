@@ -2,11 +2,12 @@ package cz.GravelCZLP.MinecraftBot.World;
 
 import java.util.HashMap;
 
-import org.spacehq.mc.protocol.data.game.chunk.Chunk;
-import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
-import org.spacehq.mc.protocol.data.game.setting.Difficulty;
-import org.spacehq.mc.protocol.data.game.world.WorldType;
-import org.spacehq.mc.protocol.data.game.world.block.BlockState;
+import com.github.steveice10.mc.protocol.data.game.chunk.Column;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.Position;
+import com.github.steveice10.mc.protocol.data.game.setting.Difficulty;
+import com.github.steveice10.mc.protocol.data.game.world.WorldType;
+import com.github.steveice10.mc.protocol.data.game.world.block.BlockState;
+import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
 
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 
@@ -21,54 +22,73 @@ public class World {
 	private long age;
 	private long time;
 	
-	private HashMap<ChunkCoordinates, Chunk> chunks = new HashMap<>();
+	private HashMap<ChunkCoordinates, Column> columns = new HashMap<>();
+	private HashMap<ChunkCoordinates, byte[]> biomeData = new HashMap<>();
+	private HashMap<ChunkCoordinates, CompoundTag[]> tileEntities = new HashMap<>();
 	
 	public int getDimension() {
 		return dimension;
 	}
-
-	public void addChunk(Chunk chunk, ChunkCoordinates coords) {
-		chunks.put(coords, chunk);
-	}
 	
-	public void unloadChunk(ChunkCoordinates chunk) {
-		chunks.remove(chunk);
-	}
-	
-	public Chunk getChunkAt(Position pos) {
-		int chunkZ = pos.getZ() / 16;
-		int chunkX = pos.getX() / 16;
+	public Column getColumnAt(Position pos) {
+		int chunkZ = (int) (pos.getZ() / 16.0);
+		int chunkX = (int) (pos.getX() / 16.0);
 		ChunkCoordinates coords = new ChunkCoordinates(chunkX, chunkZ);
-		return chunks.get(coords);
+		return columns.get(coords);
+	}
+	
+	public void setBiomeData(ChunkCoordinates coords, byte[] data) {
+		biomeData.put(coords, data);
+	}
+	
+	public void setTileEntities(ChunkCoordinates coords, CompoundTag[] tileEnts) {
+		tileEntities.put(coords, tileEnts);
+	}
+	
+	public byte[] getBiomeData(ChunkCoordinates coords) {
+		return biomeData.get(coords);
+	}
+
+	public void unloadColumn(ChunkCoordinates coords) {
+		columns.remove(coords);
+	}
+	
+	public void addChunkColumn(ChunkCoordinates coords, Column column) {
+		columns.put(coords, column);
+	}
+	
+	public CompoundTag[] getTileEntities(ChunkCoordinates coords) {
+		return tileEntities.get(coords);
 	}
 	
 	public BlockState getBlock(Position pos) {
-		ChunkCoordinates coords = new ChunkCoordinates(pos.getX() / 16, pos.getZ() / 16);
-		return chunks.get(coords).getBlocks().get(pos.getX(), pos.getY(), pos.getZ());
+		ChunkCoordinates coords = new ChunkCoordinates((int) Math.floor(pos.getX() / 16.0), (int) Math.floor(pos.getZ() / 16.0));
+		Column c = columns.get(coords);
+		if (c == null) {
+			return null;
+		}
+		int yPos = (int) Math.floor(pos.getY() / 16.0);
+		return c.getChunks()[yPos].getBlocks().get(pos.getX() % 16, pos.getY() % 16, pos.getZ() % 16);
 	}
 	
 	public BlockState getBlock(EntityLocation loc) {
-		Position pos = new Position((int)loc.getX(), (int)loc.getY(), (int)loc.getZ());
-		ChunkCoordinates coords = new ChunkCoordinates(pos.getX() / 16, pos.getZ() / 16);
-		return chunks.get(coords).getBlocks().get(pos.getX(), pos.getY(), pos.getZ());
+		return getBlock(new Position((int)loc.getX(), (int)loc.getY(), (int)loc.getZ()));
 	}
 	
-	public void updateBlock(Position pos, BlockState state) {
-		ChunkCoordinates coords = new ChunkCoordinates(pos.getX() / 16, pos.getZ() / 16);
-		chunks.get(coords).getBlocks().set(pos.getX(), pos.getY(), pos.getZ(), state);
-	}
-	
-	public BlockState setBlock(Position pos, BlockState state) {
-		ChunkCoordinates coords = new ChunkCoordinates(pos.getX() / 16, pos.getZ() / 16);
-		chunks.get(coords).getBlocks().set(pos.getX(), pos.getY(), pos.getZ(), state);
-		return chunks.get(coords).getBlocks().get(pos.getX(), pos.getY(), pos.getZ());
+	public void setBlock(Position pos, BlockState state) {
+		ChunkCoordinates coords = new ChunkCoordinates((int) (pos.getX() / 16.0), (int) (pos.getZ() / 16.0));
+		int yPos = (int) Math.floor(pos.getY() / 16.0);
+		if (!columns.containsKey(coords)) {
+			return;
+		}
+		columns.get(coords).getChunks()[yPos].getBlocks().set(Math.abs(pos.getX() % 16), Math.abs(pos.getY() % 16), Math.abs(pos.getZ() % 16), state);
 	}
 	
 	public boolean isBlockLoaded(Position b) {
-		int chunkX = b.getX() / 16;
-		int chunkZ = b.getZ() / 16;
+		int chunkX = (int) (b.getX() / 16.0);
+		int chunkZ = (int) (b.getZ() / 16.0);
 		ChunkCoordinates coords = new ChunkCoordinates(chunkX, chunkZ);
-		return chunks.containsKey(coords);
+		return columns.containsKey(coords);
 	}
 	
 	public void setDimension(int dimension) {
@@ -134,6 +154,26 @@ public class World {
 			return chunkZ;
 		}
 		
+		@Override
+		public int hashCode() {
+			int hash = 7;
+			hash = 31 * hash + chunkX;
+			hash = 31 * hash + chunkZ;
+			return hash;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof ChunkCoordinates)) {
+				return false;
+			}
+			ChunkCoordinates coordsObj = (ChunkCoordinates) obj;
+			if (coordsObj.getChunkX() == chunkX && coordsObj.getChunkZ() == chunkZ) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 	
 }

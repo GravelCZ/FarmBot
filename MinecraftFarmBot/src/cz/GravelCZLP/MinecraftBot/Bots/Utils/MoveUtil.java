@@ -1,6 +1,9 @@
 package cz.GravelCZLP.MinecraftBot.Bots.Utils;
 
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
@@ -10,10 +13,13 @@ public class MoveUtil {
 	private EntityLocation prevLocation;
 
 	public MoveUtil(Bot bot) {
-		Thread moveUpdateThread = new Thread(new Runnable() {
+		Runnable r = new Runnable() {
 			
 			@Override
 			public void run() {
+				if (bot == null || bot.getCurrentLoc() == null) {
+					return;
+				}
 				double x = bot.getCurrentLoc().getX();
 				double y = bot.getCurrentLoc().getY();
 				double z = bot.getCurrentLoc().getZ();
@@ -27,6 +33,7 @@ public class MoveUtil {
 				float prevPitch = prevLocation.getPitch();
 				
 				if ((x != prevX) || (y != prevY) || (z != prevZ) || (yaw != prevYaw) || (pitch != prevPitch)) {
+					prevLocation = bot.getCurrentLoc();
 					ClientPlayerPositionRotationPacket move = new ClientPlayerPositionRotationPacket(true, x, y, z, yaw, pitch);
 					bot.getSession().send(move);
 				}
@@ -36,7 +43,7 @@ public class MoveUtil {
 					e.printStackTrace();
 				}
 			}
-		}, "Bot Location Update Thread");
-		moveUpdateThread.start();
+		};
+		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(r, 0, 100, TimeUnit.MILLISECONDS);
 	}
 }

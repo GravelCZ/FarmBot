@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.spacehq.mc.protocol.data.game.entity.Effect;
-import org.spacehq.mc.protocol.data.game.entity.EntityStatus;
-import org.spacehq.mc.protocol.data.game.entity.attribute.Attribute;
-import org.spacehq.mc.protocol.data.game.entity.type.object.ObjectData;
-import org.spacehq.mc.protocol.data.game.entity.type.object.ObjectType;
+import com.github.steveice10.mc.protocol.data.game.entity.Effect;
+import com.github.steveice10.mc.protocol.data.game.entity.EntityStatus;
+import com.github.steveice10.mc.protocol.data.game.entity.attribute.Attribute;
+import com.github.steveice10.mc.protocol.data.game.entity.type.object.ObjectData;
+import com.github.steveice10.mc.protocol.data.game.entity.type.object.ObjectType;
 
 import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 

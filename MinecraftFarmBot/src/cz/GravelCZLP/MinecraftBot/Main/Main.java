@@ -5,11 +5,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.Position;
+import com.github.steveice10.mc.protocol.data.game.entity.player.Hand;
+import com.github.steveice10.mc.protocol.data.game.world.block.BlockFace;
+import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPlaceBlockPacket;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
+import cz.GravelCZLP.MinecraftBot.Bots.Farmer.FarmerUtils;
 import cz.GravelCZLP.MinecraftBot.Managers.BotManager;
 import cz.GravelCZLP.MinecraftBot.Managers.BotManager.BotType;
 import cz.GravelCZLP.MinecraftBot.Managers.BotManager.JsonConfig;
+import cz.GravelCZLP.MinecraftBot.Utils.EntityLocation;
 
 public class Main {
 
@@ -26,6 +35,7 @@ public class Main {
 				h = args[(i + 1)];
 			}
 		}
+		System.out.println("Started");
 		new Main(h, p);
 	}
 	
@@ -67,6 +77,43 @@ public class Main {
 						String fileName = config.type.name() + "_" + config.name;
 						BotManager.addFromFile(fileName,h, p);
 					}
+				} else if (args[0].equalsIgnoreCase("placeblock")) {
+					double x = Double.valueOf(args[1]);
+					double y = Double.valueOf(args[2]);
+					double z = Double.valueOf(args[3]);
+					Bot bot = getBotByName(args[0]);
+					
+					if (bot == null) {
+						continue;
+					}
+					FarmerUtils.faceBlock(new Position((int) x, (int) y, (int) z), bot);
+					ClientPlayerPlaceBlockPacket b = new ClientPlayerPlaceBlockPacket(new EntityLocation(x, y, z, bot.getCurrentWorld()).toPosition(), BlockFace.UP, Hand.OFF_HAND, 0.5f, 0.5f, 0.5f);
+					bot.getSession().send(b);
+				} else if (args[0].equalsIgnoreCase("drop")) {
+					Bot bot = getBotByName(args[0]);
+					
+					if (bot == null) {
+						continue;
+					}
+					bot.drop(true, true);
+				} else if (args[0].equalsIgnoreCase("listinv")) {
+					Bot bot = getBotByName(args[0]);
+					
+					if (bot == null) {
+						continue;
+					}
+					ItemStack[] inv = bot.getPlayerInventory().getInventory();
+					ItemStack[] hotbar = bot.getPlayerInventory().getHotbar();
+					for (int i = 0; i < hotbar.length; i++) {
+						if (hotbar[i] != null) {
+							System.out.println("Hotbar: " + i + " " + hotbar[i].getId() + ":" + hotbar[i].getData() + " a: " + hotbar[i].getAmount());	
+						}
+					}
+					for (int i = 0; i < inv.length; i++) {
+						if (inv[i] != null) {
+							System.out.println("Hotbar: " + i + " " + inv[i].getId() + ":" + inv[i].getData() + " a: " + inv[i].getAmount());	
+						}
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -76,6 +123,16 @@ public class Main {
 				br.close();
 			}
 		}
+	}
+	
+	public Bot getBotByName(String name) {
+		List<Bot> bots0 = bots.stream().filter(bot -> !bot.getName().equals(name)).collect(Collectors.toList());
+		
+		if (bots0.isEmpty()) {
+			System.out.println("That bot does not exist.");
+			return null;
+		}
+		return bots0.get(0);
 	}
 	
 	public static void addBot(Bot bot) {

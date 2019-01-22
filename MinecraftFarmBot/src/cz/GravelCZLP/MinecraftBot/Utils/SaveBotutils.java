@@ -1,19 +1,19 @@
 package cz.GravelCZLP.MinecraftBot.Utils;
 
-import org.spacehq.mc.protocol.data.game.entity.metadata.ItemStack;
-import org.spacehq.mc.protocol.data.game.entity.player.Hand;
-import org.spacehq.mc.protocol.data.game.entity.player.PlayerAction;
-import org.spacehq.mc.protocol.data.game.world.block.BlockFace;
-import org.spacehq.mc.protocol.data.game.world.block.BlockState;
-import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerActionPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPlaceBlockPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
-import org.spacehq.mc.protocol.packet.ingame.client.window.ClientCloseWindowPacket;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
+import com.github.steveice10.mc.protocol.data.game.entity.player.Hand;
+import com.github.steveice10.mc.protocol.data.game.entity.player.PlayerAction;
+import com.github.steveice10.mc.protocol.data.game.world.block.BlockFace;
+import com.github.steveice10.mc.protocol.data.game.world.block.BlockState;
+import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerActionPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPlaceBlockPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientCloseWindowPacket;
 
 import cz.GravelCZLP.MinecraftBot.Bots.Bot;
-import cz.GravelCZLP.MinecraftBot.Inventory.Inventory;
+import cz.GravelCZLP.MinecraftBot.Inventory.PlayerInventory;
 
 public class SaveBotutils {
 
@@ -30,7 +30,7 @@ public class SaveBotutils {
 			public void run() {
 				ClientCloseWindowPacket closeWindow = new ClientCloseWindowPacket(bot.getCurrentWindowId());
 				ClientPlayerChangeHeldItemPacket heldWaterBucket = null;
-				Inventory inv = (Inventory) bot.getInventory();
+				PlayerInventory inv = (PlayerInventory) bot.getPlayerInventory();
 				boolean foundBucket = false;
 				for (int slot = 0; slot <= inv.getHotbar().length; slot++) {
 					ItemStack s = inv.getItemInHotbar(slot);

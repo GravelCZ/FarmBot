@@ -5,10 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
-import org.spacehq.mc.protocol.data.game.entity.metadata.MetadataType;
-
 import com.esotericsoftware.jsonbeans.Json;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadata;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.MetadataType;
 
 import cz.GravelCZLP.MinecraftBot.Entites.Player;
 
